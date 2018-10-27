@@ -61,7 +61,15 @@
     "build-storybook": "build-storybook"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "plugins": [
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "error"
+      ]
+    }
   },
   "browserslist": [
     ">0.2%",
@@ -75,9 +83,19 @@
     "@storybook/addon-storyshots": "4.0.0-rc.6",
     "@storybook/addons": "4.0.0-rc.6",
     "@storybook/react": "4.0.0-rc.6",
+    "babel-plugin-require-context-hook": "^1.0.0",
+    "babel-plugin-syntax-trailing-function-commas": "^6.22.0",
     "babel-runtime": "^6.26.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "prettier": "1.14.3"
+    "jest-transform-css": "^2.0.0",
+    "prettier": "1.14.3",
+    "react-test-renderer": "^16.6.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "semi": false,
+    "jsxBracketSameLine": true
   },
   "jest": {
     "collectCoverageFrom": [
@@ -86,7 +104,8 @@
     ],
     "resolver": "jest-pnp-resolver",
     "setupFiles": [
-      "react-app-polyfill/jsdom"
+      "react-app-polyfill/jsdom",
+      "<rootDir>/.jest/register-context.js"
     ],
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
@@ -121,8 +140,30 @@
     ]
   },
   "babel": {
+    "plugins": [
+      "syntax-trailing-function-commas"
+    ],
     "presets": [
-      "react-app"
-    ]
+      "@babel/preset-react",
+      [
+        "@babel/preset-env",
+        {
+          "modules": "commonjs",
+          "targets": {
+            "browsers": [
+              "last 2 versions",
+              "safari >= 7"
+            ]
+          }
+        }
+      ]
+    ],
+    "env": {
+      "test": {
+        "plugins": [
+          "require-context-hook"
+        ]
+      }
+    }
   }
 }
