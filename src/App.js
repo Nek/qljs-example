@@ -98,46 +98,35 @@ class App extends Component {
         return breeds
       })
       .then(breeds => {
-        const updateStateWithImageSrc = (state, setState) => promise =>
-          promise
-            .then(data => {
-              const { breeds } = this.state
-              return { ...data, breeds }
-            })
-            .then(setImageSrc)
-            .then(newBreeds => {
-              this.setState({
-                breeds: newBreeds,
-              })
-            })
-
-        const updateStateWithDescription = (state, setState) => promise =>
-          promise
-            .then(data => {
+        const updateStateWithImageSrc = setState => promise =>
+          promise.then(data => {
+            setState(state => {
               const { breeds } = state
-              return { ...data, breeds }
-            })
-            .then(setDescription)
-            .then(newBreeds => {
-              setState({
+              const newBreeds = setImageSrc({ ...data, breeds })
+              return {
                 breeds: newBreeds,
-              })
+              }
             })
+          })
+
+        const updateStateWithDescription = setState => promise =>
+          promise.then(data => {
+            setState(state => {
+              const { breeds } = state
+              const newBreeds = setDescription({ ...data, breeds })
+              return {
+                breeds: newBreeds,
+              }
+            })
+          })
 
         breeds
           .map(fetchImageSrc)
-          .map(
-            updateStateWithImageSrc(this.state, (...args) =>
-              this.setState(...args),
-            ),
-          )
+          .map(updateStateWithImageSrc((...args) => this.setState(...args)))
+
         breeds
           .map(fetchDescription)
-          .map(
-            updateStateWithDescription(this.state, (...args) =>
-              this.setState(...args),
-            ),
-          )
+          .map(updateStateWithDescription((...args) => this.setState(...args)))
       })
   }
   render() {
