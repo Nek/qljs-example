@@ -53,20 +53,61 @@ class App extends Component {
               }
             })
         }
+        const findBreedAndIndex = (breeds, fullBreedName) => {
+          const breedIndex = breeds.findIndex(
+            breed => breed.fullBreedName === fullBreedName,
+          )
+          const breed = breeds[breedIndex]
+          return { breedIndex, breed }
+        }
         const updateStateWithImageSrc = promise =>
-          promise.then(({ imageSrc, fullBreedName }) => {
-            const { breeds } = this.state
-            const breedIndex = breeds.findIndex(
-              breed => breed.fullBreedName === fullBreedName,
-            )
-            const breed = breeds[breedIndex]
-
-            const newBreeds = [...breeds]
-            newBreeds[breedIndex] = { ...breed, imageSrc }
-            this.setState({
-              breeds: newBreeds,
+          promise
+            .then(data => {
+              const { breeds } = this.state
+              return { ...data, breeds }
             })
-          })
+            .then(data => {
+              return { ...data, key: 'imageSrc' }
+            })
+            .then(({ breeds, imageSrc, fullBreedName }) => {
+              const { breedIndex, breed } = findBreedAndIndex(
+                breeds,
+                fullBreedName,
+              )
+
+              const newBreeds = [...breeds]
+              newBreeds[breedIndex] = { ...breed, imageSrc }
+
+              return newBreeds
+            })
+            .then(newBreeds => {
+              this.setState({
+                breeds: newBreeds,
+              })
+            })
+
+        const updateStateWithDescription = promise =>
+          promise
+            .then(data => {
+              const { breeds } = this.state
+              return { ...data, breeds }
+            })
+            .then(({ breeds, fullBreedName, description }) => {
+              const { breedIndex, breed } = findBreedAndIndex(
+                breeds,
+                fullBreedName,
+              )
+
+              const newBreeds = [...breeds]
+              newBreeds[breedIndex] = { ...breed, description }
+
+              return newBreeds
+            })
+            .then(newBreeds => {
+              this.setState({
+                breeds: newBreeds,
+              })
+            })
 
         const fetchDescription = ({ fullBreedName }) => {
           return fetch(
@@ -76,20 +117,6 @@ class App extends Component {
             .then(([description]) => ({ fullBreedName, description }))
         }
 
-        const updateStateWithDescription = promise =>
-          promise.then(({ fullBreedName, description }) => {
-            const { breeds } = this.state
-            const breedIndex = breeds.findIndex(
-              breed => breed.fullBreedName === fullBreedName,
-            )
-            const breed = breeds[breedIndex]
-
-            const newBreeds = [...breeds]
-            newBreeds[breedIndex] = { ...breed, description }
-            this.setState({
-              breeds: newBreeds,
-            })
-          })
         breeds.map(fetchImageSrc).map(updateStateWithImageSrc)
         breeds.map(fetchDescription).map(updateStateWithDescription)
       })
