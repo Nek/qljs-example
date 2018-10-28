@@ -29,10 +29,7 @@ class App extends Component {
               breedName,
               subBreedName,
               fullBreedName,
-              breedId:
-                `https://dog.ceo/api/breed/` +
-                dogBreedPair.join('/') +
-                `/images/random`,
+              breedId: dogBreedPair.join('/'),
               imageSrc: null,
               description: null,
             }
@@ -45,7 +42,9 @@ class App extends Component {
       })
       .then(breeds => {
         const fetchImageSrc = ({ fullBreedName, breedId }) => {
-          return fetch(breedId)
+          return fetch(
+            `https://dog.ceo/api/breed/` + breedId + `/images/random`,
+          )
             .then(body => body.json())
             .then(({ status, message }) => {
               return {
@@ -96,7 +95,9 @@ class App extends Component {
       })
   }
   render() {
-    return this.state.breeds.map(DogCard)
+    return this.state.breeds.length === 0
+      ? 'Loading...'
+      : this.state.breeds.map(DogCard)
   }
 }
 
