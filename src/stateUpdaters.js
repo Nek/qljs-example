@@ -25,10 +25,10 @@ const setDescription = ({ breeds, fullBreedName, description }) => {
 }
 
 export const updateStateWithImageSrc = setState => promise =>
-  promise.then(data => {
+  promise.then(({ fullBreedName, imageSrc }) => {
     setState(state => {
       const { breeds } = state
-      const newBreeds = setImageSrc({ ...data, breeds })
+      const newBreeds = setImageSrc({ breeds, fullBreedName, imageSrc })
       return {
         breeds: newBreeds,
       }
