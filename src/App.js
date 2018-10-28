@@ -4,7 +4,7 @@ import DogCard from './components/DogCard'
 
 const API_ROOT = `https://dog.ceo/api/`
 const BREEDS_LIST_ALL = `${API_ROOT}breeds/list/all`
-const breedIdImagesRandom = breedId =>
+const breedIdImagesRandomUrl = breedId =>
   `${API_ROOT}breed/` + breedId + `/images/random`
 
 const flatten = (acc, val) => [...acc, ...val]
@@ -34,6 +34,33 @@ const rawDataToAppData = ({ message }) => {
   return data
 }
 
+const fetchImageSrc = ({ fullBreedName, breedId }) => {
+  return fetch(breedIdImagesRandomUrl(breedId))
+    .then(body => body.json())
+    .then(({ status, message }) => {
+      return {
+        imageSrc: status === 'success' && message,
+        fullBreedName,
+      }
+    })
+}
+
+const fetchDescription = ({ fullBreedName }) => {
+  return fetch(
+    'https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1',
+  )
+    .then(body => body.json())
+    .then(([description]) => ({ fullBreedName, description }))
+}
+
+const findBreedAndIndex = (breeds, fullBreedName) => {
+  const breedIndex = breeds.findIndex(
+    breed => breed.fullBreedName === fullBreedName,
+  )
+  const breed = breeds[breedIndex]
+  return { breedIndex, breed }
+}
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -50,23 +77,6 @@ class App extends Component {
         return breeds
       })
       .then(breeds => {
-        const fetchImageSrc = ({ fullBreedName, breedId }) => {
-          return fetch(breedIdImagesRandom(breedId))
-            .then(body => body.json())
-            .then(({ status, message }) => {
-              return {
-                imageSrc: status === 'success' && message,
-                fullBreedName,
-              }
-            })
-        }
-        const findBreedAndIndex = (breeds, fullBreedName) => {
-          const breedIndex = breeds.findIndex(
-            breed => breed.fullBreedName === fullBreedName,
-          )
-          const breed = breeds[breedIndex]
-          return { breedIndex, breed }
-        }
         const updateStateWithImageSrc = promise =>
           promise
             .then(data => {
@@ -115,14 +125,6 @@ class App extends Component {
                 breeds: newBreeds,
               })
             })
-
-        const fetchDescription = ({ fullBreedName }) => {
-          return fetch(
-            'https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1',
-          )
-            .then(body => body.json())
-            .then(([description]) => ({ fullBreedName, description }))
-        }
 
         breeds.map(fetchImageSrc).map(updateStateWithImageSrc)
         breeds.map(fetchDescription).map(updateStateWithDescription)
