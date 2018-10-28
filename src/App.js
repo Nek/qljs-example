@@ -2,6 +2,38 @@ import { Component } from 'react'
 import './App.css'
 import DogCard from './components/DogCard'
 
+const API_ROOT = `https://dog.ceo/api/`
+const BREEDS_LIST_ALL = `${API_ROOT}breeds/list/all`
+const breedIdImagesRandom = breedId =>
+  `${API_ROOT}breed/` + breedId + `/images/random`
+
+const flatten = (acc, val) => [...acc, ...val]
+
+const breedDataToPairs = ([breedName, subbreeds]) =>
+  subbreeds.length > 0
+    ? subbreeds.map(subBreedName => [breedName, subBreedName])
+    : [[breedName]]
+
+const breedPairToBreedData = dogBreedPair => {
+  const [breedName, subBreedName] = dogBreedPair
+  const subBreedText = subBreedName ? ` - ${subBreedName}` : ''
+  const fullBreedName = breedName + subBreedText
+  return {
+    fullBreedName,
+    breedId: dogBreedPair.join('/'),
+    imageSrc: null,
+    description: null,
+  }
+}
+
+const rawDataToAppData = ({ message }) => {
+  const data = Object.entries(message)
+    .map(breedDataToPairs)
+    .reduce(flatten)
+    .map(breedPairToBreedData)
+  return data
+}
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -10,39 +42,16 @@ class App extends Component {
     }
   }
   componentDidMount() {
-    fetch('https://dog.ceo/api/breeds/list/all')
+    fetch(BREEDS_LIST_ALL)
       .then(body => body.json())
-      .then(({ message }) => {
-        const data = Object.entries(message)
-          .map(
-            ([breedName, subbreeds]) =>
-              subbreeds.length > 0
-                ? subbreeds.map(subBreedName => [breedName, subBreedName])
-                : [[breedName]],
-          )
-          .reduce((acc, val) => [...acc, ...val])
-          .map(dogBreedPair => {
-            const [breedName, subBreedName] = dogBreedPair
-            const subBreedText = subBreedName ? ` - ${subBreedName}` : ''
-            const fullBreedName = breedName + subBreedText
-            return {
-              fullBreedName,
-              breedId: dogBreedPair.join('/'),
-              imageSrc: null,
-              description: null,
-            }
-          })
-        return data
-      })
+      .then(rawDataToAppData)
       .then(breeds => {
         this.setState({ breeds })
         return breeds
       })
       .then(breeds => {
         const fetchImageSrc = ({ fullBreedName, breedId }) => {
-          return fetch(
-            `https://dog.ceo/api/breed/` + breedId + `/images/random`,
-          )
+          return fetch(breedIdImagesRandom(breedId))
             .then(body => body.json())
             .then(({ status, message }) => {
               return {
