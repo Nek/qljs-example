@@ -12,7 +12,7 @@ export const fetchImageSrc = ({ fullBreedName, breedId }) => {
     .then(extractJson)
     .then(({ status, message }) => {
       return {
-        imageSrc: status === 'success' && message,
+        imageSrc: (status === 'success' && message) || null,
         fullBreedName,
       }
     })
