@@ -19,4 +19,22 @@ describe('dataConversion', () => {
       ])
     })
   })
+  describe('converts breed pair to breed data', () => {
+    it('without subbreed', () => {
+      expect(breedPairToBreedData(['hound'])).toEqual({
+        fullBreedName: 'hound',
+        breedId: 'hound',
+        imageSrc: null,
+        description: null,
+      })
+    })
+    it('with subbreed', () => {
+      expect(breedPairToBreedData(['hound', 'grey'])).toEqual({
+        fullBreedName: 'hound - grey',
+        breedId: 'hound/grey',
+        imageSrc: null,
+        description: null,
+      })
+    })
+  })
 })
