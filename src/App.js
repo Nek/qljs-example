@@ -35,8 +35,8 @@ class App extends Component {
                 `/images/random`,
               descriptionTextUrl:
                 'https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1',
-              imageUrl: null,
-              description: '',
+              imageSrc: null,
+              descriptionText: '',
             }
           })
         return data
@@ -46,7 +46,32 @@ class App extends Component {
         return breeds
       })
       .then(breeds => {
-        console.log(breeds)
+        const fetchDogImageSrc = ({ fullBreedName, imageSrcDataUrl }) => {
+          return fetch(imageSrcDataUrl)
+            .then(body => body.json())
+            .then(({ status, message }) => {
+              console.log(fullBreedName, status, message)
+              return {
+                imageSrc: status === 'success' && message,
+                fullBreedName,
+              }
+            })
+        }
+        const updateStateWithImageSrc = promise =>
+          promise.then(({ imageSrc, fullBreedName }) => {
+            const { breeds } = this.state
+            const breedIndex = breeds.findIndex(
+              breed => breed.fullBreedName === fullBreedName,
+            )
+            const breed = breeds[breedIndex]
+
+            this.setState({
+              breeds: Object.assign([...breeds], {
+                [breedIndex]: { ...breed, imageSrc },
+              }),
+            })
+          })
+        breeds.map(fetchDogImageSrc).map(updateStateWithImageSrc)
       })
   }
   render() {
