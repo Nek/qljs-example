@@ -3,7 +3,6 @@ import './App.css'
 import DogCard from './components/DogCard'
 
 const flatten = (acc, val) => [...acc, ...val]
-const pipe = (...fns) => x => fns.reduce((v, f) => f(v), x)
 
 const extractJson = body => body.json()
 
