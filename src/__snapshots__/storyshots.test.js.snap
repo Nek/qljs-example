@@ -1,7 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Storyshots DogCard default 1`] = `
-<div>
-  Dog Breed
+<div
+  className=".dog-card"
+>
+  <h1 />
+  <img
+    src="/dog.jpg"
+  />
+  <p />
 </div>
 `;
