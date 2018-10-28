@@ -82,6 +82,28 @@ const setDescription = ({ breeds, fullBreedName, description }) => {
   return newBreeds
 }
 
+const updateStateWithImageSrc = setState => promise =>
+  promise.then(data => {
+    setState(state => {
+      const { breeds } = state
+      const newBreeds = setImageSrc({ ...data, breeds })
+      return {
+        breeds: newBreeds,
+      }
+    })
+  })
+
+const updateStateWithDescription = setState => promise =>
+  promise.then(data => {
+    setState(state => {
+      const { breeds } = state
+      const newBreeds = setDescription({ ...data, breeds })
+      return {
+        breeds: newBreeds,
+      }
+    })
+  })
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -98,28 +120,6 @@ class App extends Component {
         return breeds
       })
       .then(breeds => {
-        const updateStateWithImageSrc = setState => promise =>
-          promise.then(data => {
-            setState(state => {
-              const { breeds } = state
-              const newBreeds = setImageSrc({ ...data, breeds })
-              return {
-                breeds: newBreeds,
-              }
-            })
-          })
-
-        const updateStateWithDescription = setState => promise =>
-          promise.then(data => {
-            setState(state => {
-              const { breeds } = state
-              const newBreeds = setDescription({ ...data, breeds })
-              return {
-                breeds: newBreeds,
-              }
-            })
-          })
-
         breeds
           .map(fetchImageSrc)
           .map(updateStateWithImageSrc((...args) => this.setState(...args)))
