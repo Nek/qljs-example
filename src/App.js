@@ -48,7 +48,6 @@ class App extends Component {
           return fetch(breedId)
             .then(body => body.json())
             .then(({ status, message }) => {
-              console.log(fullBreedName, status, message)
               return {
                 imageSrc: status === 'success' && message,
                 fullBreedName,
