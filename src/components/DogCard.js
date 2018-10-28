@@ -4,8 +4,12 @@ const DogCard = ({ fullBreedName, imageSrc, description }) => {
   return (
     <div className=".dog-card">
       <h1>{fullBreedName}</h1>
-      <img src={imageSrc} alt={fullBreedName} />
-      <p>{description}</p>
+      {imageSrc ? (
+        <img src={imageSrc} alt={fullBreedName} />
+      ) : (
+        'Image is loading...'
+      )}
+      <p>{description ? description : 'Description is loading...'}</p>
     </div>
   )
 }

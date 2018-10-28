@@ -1,13 +1,63 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Storyshots DogCard default 1`] = `
+exports[`Storyshots DogCard initial 1`] = `
 <div
   className=".dog-card"
 >
-  <h1 />
+  <h1>
+    Cerberus
+  </h1>
+  Image is loading...
+  <p>
+    Description is loading...
+  </p>
+</div>
+`;
+
+exports[`Storyshots DogCard with description 1`] = `
+<div
+  className=".dog-card"
+>
+  <h1>
+    Cerberus
+  </h1>
+  Image is loading...
+  <p>
+    Lorem ipsum dolor sit...
+  </p>
+</div>
+`;
+
+exports[`Storyshots DogCard with image 1`] = `
+<div
+  className=".dog-card"
+>
+  <h1>
+    Cerberus
+  </h1>
   <img
+    alt="Cerberus"
     src="/dog.jpg"
   />
-  <p />
+  <p>
+    Description is loading...
+  </p>
+</div>
+`;
+
+exports[`Storyshots DogCard with image and description 1`] = `
+<div
+  className=".dog-card"
+>
+  <h1>
+    Cerberus
+  </h1>
+  <img
+    alt="Cerberus"
+    src="/dog.jpg"
+  />
+  <p>
+    Lorem ipsum dolor sit...
+  </p>
 </div>
 `;
