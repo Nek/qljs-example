@@ -5,6 +5,8 @@ const BREEDS_LIST_ALL = `${API_ROOT}breeds/list/all`
 const breedIdImagesRandomUrl = breedId =>
   `${API_ROOT}breed/` + breedId + `/images/random`
 
+const DESCRIPTION = `https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1`
+
 export const fetchAllBreeds = () => fetch(BREEDS_LIST_ALL).then(extractJson)
 
 export const fetchImageSrc = ({ fullBreedName, breedId }) => {
@@ -19,9 +21,7 @@ export const fetchImageSrc = ({ fullBreedName, breedId }) => {
 }
 
 export const fetchDescription = ({ fullBreedName }) => {
-  return fetch(
-    'https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1',
-  )
+  return fetch(DESCRIPTION)
     .then(extractJson)
     .then(([description]) => ({ fullBreedName, description }))
 }

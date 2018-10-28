@@ -1,4 +1,4 @@
-import { fetchAllBreeds, fetchImageSrc } from './api'
+import { fetchAllBreeds, fetchImageSrc, fetchDescription } from './api'
 describe('API', () => {
   beforeEach(() => {
     fetch.resetMocks()
@@ -22,7 +22,6 @@ describe('API', () => {
         imageSrc: result.message,
         fullBreedName,
       })
-      expect(fetch.mock.calls[0][0]).toBeDefined()
     })
   })
   it('fetches image source and processes an error', () => {
@@ -37,7 +36,15 @@ describe('API', () => {
         imageSrc: null,
         fullBreedName,
       })
-      expect(fetch.mock.calls[0][0]).toBeDefined()
+    })
+  })
+  it('fetches a description', () => {
+    const description = 'something'
+    const result = [description]
+    fetch.mockResponseOnce(JSON.stringify(result))
+    const fullBreedName = 'hound'
+    return fetchDescription({ fullBreedName }).then(data => {
+      expect(data).toEqual({ fullBreedName, description })
     })
   })
 })
