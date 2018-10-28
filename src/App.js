@@ -26,8 +26,6 @@ class App extends Component {
             const subBreedText = subBreedName ? ` - ${subBreedName}` : ''
             const fullBreedName = breedName + subBreedText
             return {
-              breedName,
-              subBreedName,
               fullBreedName,
               breedId: dogBreedPair.join('/'),
               imageSrc: null,
