@@ -5,7 +5,7 @@ const BREEDS_LIST_ALL = `${API_ROOT}breeds/list/all`
 const breedIdImagesRandomUrl = breedId =>
   `${API_ROOT}breed/` + breedId + `/images/random`
 
-export const fetchAllBreeds = () => fetch(BREEDS_LIST_ALL)
+export const fetchAllBreeds = () => fetch(BREEDS_LIST_ALL).then(extractJson)
 
 export const fetchImageSrc = ({ fullBreedName, breedId }) => {
   return fetch(breedIdImagesRandomUrl(breedId))

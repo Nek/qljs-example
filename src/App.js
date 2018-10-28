@@ -3,7 +3,6 @@ import './App.css'
 import DogCard from './components/DogCard'
 
 import { fetchAllBreeds, fetchImageSrc, fetchDescription } from './api'
-import { extractJson } from './utils'
 
 import { rawDataToAppData } from './dataConversion'
 
@@ -64,7 +63,6 @@ class App extends Component {
   }
   componentDidMount() {
     fetchAllBreeds()
-      .then(extractJson)
       .then(rawDataToAppData)
       .then(breeds => {
         this.setState({ breeds })
