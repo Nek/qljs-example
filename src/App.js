@@ -2,7 +2,7 @@ import { Component } from 'react'
 import './App.css'
 import DogCard from './components/DogCard'
 
-import { breedIdImagesRandomUrl, BREEDS_LIST_ALL } from './api'
+import { fetchAllBreeds, fetchImageSrc, fetchDescription } from './api'
 import { flatten, extractJson } from './utils'
 
 const breedDataToPairs = ([breedName, subbreeds]) =>
@@ -28,25 +28,6 @@ const rawDataToAppData = ({ message }) => {
     .reduce(flatten)
     .map(breedPairToBreedData)
   return data
-}
-
-const fetchImageSrc = ({ fullBreedName, breedId }) => {
-  return fetch(breedIdImagesRandomUrl(breedId))
-    .then(extractJson)
-    .then(({ status, message }) => {
-      return {
-        imageSrc: status === 'success' && message,
-        fullBreedName,
-      }
-    })
-}
-
-const fetchDescription = ({ fullBreedName }) => {
-  return fetch(
-    'https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1',
-  )
-    .then(extractJson)
-    .then(([description]) => ({ fullBreedName, description }))
 }
 
 const findBreedAndIndex = (breeds, fullBreedName) => {
@@ -105,7 +86,7 @@ class App extends Component {
     }
   }
   componentDidMount() {
-    fetch(BREEDS_LIST_ALL)
+    fetchAllBreeds()
       .then(extractJson)
       .then(rawDataToAppData)
       .then(breeds => {
