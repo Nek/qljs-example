@@ -1,11 +1,11 @@
 import { flatten } from './utils'
 
-const breedDataToPairs = ([breedName, subbreeds]) =>
+export const breedDataToPairs = ([breedName, subbreeds]) =>
   subbreeds.length > 0
     ? subbreeds.map(subBreedName => [breedName, subBreedName])
     : [[breedName]]
 
-const breedPairToBreedData = dogBreedPair => {
+export const breedPairToBreedData = dogBreedPair => {
   const [breedName, subBreedName] = dogBreedPair
   const subBreedText = subBreedName ? ` - ${subBreedName}` : ''
   const fullBreedName = breedName + subBreedText
