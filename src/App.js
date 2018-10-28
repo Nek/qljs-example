@@ -83,10 +83,7 @@ class App extends Component {
               const { breeds } = this.state
               return { ...data, breeds }
             })
-            .then(data => {
-              return { ...data, key: 'imageSrc' }
-            })
-            .then(({ breeds, imageSrc, fullBreedName }) => {
+            .then(({ breeds, fullBreedName, imageSrc }) => {
               const { breedIndex, breed } = findBreedAndIndex(
                 breeds,
                 fullBreedName,
