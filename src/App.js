@@ -2,14 +2,11 @@ import { Component } from 'react'
 import './App.css'
 import DogCard from './components/DogCard'
 
+import { breedIdImagesRandomUrl, BREEDS_LIST_ALL } from './api'
+
 const flatten = (acc, val) => [...acc, ...val]
 
 const extractJson = body => body.json()
-
-const API_ROOT = `https://dog.ceo/api/`
-const BREEDS_LIST_ALL = `${API_ROOT}breeds/list/all`
-const breedIdImagesRandomUrl = breedId =>
-  `${API_ROOT}breed/` + breedId + `/images/random`
 
 const breedDataToPairs = ([breedName, subbreeds]) =>
   subbreeds.length > 0
