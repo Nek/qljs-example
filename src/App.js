@@ -29,14 +29,12 @@ class App extends Component {
               breedName,
               subBreedName,
               fullBreedName,
-              imageSrcDataUrl:
+              breedId:
                 `https://dog.ceo/api/breed/` +
                 dogBreedPair.join('/') +
                 `/images/random`,
-              descriptionTextUrl:
-                'https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1',
               imageSrc: null,
-              descriptionText: '',
+              description: null,
             }
           })
         return data
@@ -46,8 +44,8 @@ class App extends Component {
         return breeds
       })
       .then(breeds => {
-        const fetchDogImageSrc = ({ fullBreedName, imageSrcDataUrl }) => {
-          return fetch(imageSrcDataUrl)
+        const fetchImageSrc = ({ fullBreedName, breedId }) => {
+          return fetch(breedId)
             .then(body => body.json())
             .then(({ status, message }) => {
               console.log(fullBreedName, status, message)
@@ -65,13 +63,37 @@ class App extends Component {
             )
             const breed = breeds[breedIndex]
 
+            const newBreeds = [...breeds]
+            newBreeds[breedIndex] = { ...breed, imageSrc }
             this.setState({
-              breeds: Object.assign([...breeds], {
-                [breedIndex]: { ...breed, imageSrc },
-              }),
+              breeds: newBreeds,
             })
           })
-        breeds.map(fetchDogImageSrc).map(updateStateWithImageSrc)
+
+        const fetchDescription = ({ fullBreedName }) => {
+          return fetch(
+            'https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=1',
+          )
+            .then(body => body.json())
+            .then(([description]) => ({ fullBreedName, description }))
+        }
+
+        const updateStateWithDescription = promise =>
+          promise.then(({ fullBreedName, description }) => {
+            const { breeds } = this.state
+            const breedIndex = breeds.findIndex(
+              breed => breed.fullBreedName === fullBreedName,
+            )
+            const breed = breeds[breedIndex]
+
+            const newBreeds = [...breeds]
+            newBreeds[breedIndex] = { ...breed, description }
+            this.setState({
+              breeds: newBreeds,
+            })
+          })
+        breeds.map(fetchImageSrc).map(updateStateWithImageSrc)
+        breeds.map(fetchDescription).map(updateStateWithDescription)
       })
   }
   render() {
