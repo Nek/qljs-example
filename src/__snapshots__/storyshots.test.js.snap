@@ -2,7 +2,7 @@
 
 exports[`Storyshots DogCard initial 1`] = `
 <div
-  className=".dog-card"
+  className="dog-card"
 >
   <h1>
     Cerberus
@@ -16,7 +16,7 @@ exports[`Storyshots DogCard initial 1`] = `
 
 exports[`Storyshots DogCard with description 1`] = `
 <div
-  className=".dog-card"
+  className="dog-card"
 >
   <h1>
     Cerberus
@@ -30,7 +30,7 @@ exports[`Storyshots DogCard with description 1`] = `
 
 exports[`Storyshots DogCard with image 1`] = `
 <div
-  className=".dog-card"
+  className="dog-card"
 >
   <h1>
     Cerberus
@@ -47,7 +47,7 @@ exports[`Storyshots DogCard with image 1`] = `
 
 exports[`Storyshots DogCard with image and description 1`] = `
 <div
-  className=".dog-card"
+  className="dog-card"
 >
   <h1>
     Cerberus
