@@ -3,32 +3,9 @@ import './App.css'
 import DogCard from './components/DogCard'
 
 import { fetchAllBreeds, fetchImageSrc, fetchDescription } from './api'
-import { flatten, extractJson } from './utils'
+import { extractJson } from './utils'
 
-const breedDataToPairs = ([breedName, subbreeds]) =>
-  subbreeds.length > 0
-    ? subbreeds.map(subBreedName => [breedName, subBreedName])
-    : [[breedName]]
-
-const breedPairToBreedData = dogBreedPair => {
-  const [breedName, subBreedName] = dogBreedPair
-  const subBreedText = subBreedName ? ` - ${subBreedName}` : ''
-  const fullBreedName = breedName + subBreedText
-  return {
-    fullBreedName,
-    breedId: dogBreedPair.join('/'),
-    imageSrc: null,
-    description: null,
-  }
-}
-
-const rawDataToAppData = ({ message }) => {
-  const data = Object.entries(message)
-    .map(breedDataToPairs)
-    .reduce(flatten)
-    .map(breedPairToBreedData)
-  return data
-}
+import { rawDataToAppData } from './dataConversion'
 
 const findBreedAndIndex = (breeds, fullBreedName) => {
   const breedIndex = breeds.findIndex(
