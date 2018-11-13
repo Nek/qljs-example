@@ -1,44 +1,63 @@
-import { Component } from 'react'
+import React, { useState } from 'react'
 import './App.css'
-import DogCard from './components/DogCard'
 
-import { fetchAllBreeds, fetchImageSrc, fetchDescription } from './api'
+import uuid from 'uuid/v4'
 
-import { rawDataToAppData } from './dataConversion'
-import {
-  updateStateWithImageSrc,
-  updateStateWithDescription,
-} from './stateUpdaters'
+const registry = new Map()
 
-class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      breeds: [],
+const query = q => comp => {
+  registry.set(comp, { query: q })
+  return comp
+}
+
+const state = {
+  'app/todos': {
+    0: { 'todo/text': 'First' },
+    1: { 'todo/text': 'Second' },
+    2: { 'todo/text': 'Third' },
+  },
+}
+
+const parse = q => {
+  switch (q) {
+    case 'app/todos':
+      return {
+        todos: Object.entries(state[q]).map(([id, data]) => ({
+          text: data['todo/text'],
+          id,
+        })),
+      }
+    case 'todo/text':
+      return { text: state[q] }
+    default: {
     }
   }
-  componentDidMount() {
-    fetchAllBreeds()
-      .then(rawDataToAppData)
-      .then(breeds => {
-        this.setState({ breeds })
-        return breeds
-      })
-      .then(breeds => {
-        breeds
-          .map(fetchImageSrc)
-          .map(updateStateWithImageSrc((...args) => this.setState(...args)))
+}
 
-        breeds
-          .map(fetchDescription)
-          .map(updateStateWithDescription((...args) => this.setState(...args)))
-      })
-  }
-  render() {
-    return this.state.breeds.length === 0
-      ? 'Loading...'
-      : this.state.breeds.map(DogCard)
-  }
+const TextItem = ({ text }) => {
+  return <li>{text}</li>
+}
+
+const Todo = query('todo/text')(TextItem)
+
+const Todos = query('app/todos')(({ todos }) => {
+  return (
+    <ol>
+      {Object.values(todos).map(({ text }) => (
+        <li>{text}</li>
+      ))}
+    </ol>
+  )
+})
+
+const render = Comp => {
+  const props = parse(registry.get(Comp).query)
+  debugger
+  return <Comp {...props} />
+}
+
+const App = () => {
+  return render(Todos)
 }
 
 export default App
