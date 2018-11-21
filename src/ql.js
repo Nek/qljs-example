@@ -31,9 +31,12 @@ const zip = (a1, a2) => a1.map((x, i) => [x, a2[i]])
 const first = ([f]) => f
 
 export function parseQueryIntoMap(state, read, query, env) {
-  const keys = query.map(first)
-  const vals = parseQuery(state, read, query, env)
-  const atts = zip(keys, vals).reduce((res, [k, v]) => ({ ...res, [k]: v }), {})
+  const queryName = query.map(first)
+  const queryResult = parseQuery(state, read, query, env)
+  const atts = zip(queryName, queryResult).reduce(
+    (res, [k, v]) => ({ ...res, [k]: v }),
+    {},
+  )
 
   return {
     env,

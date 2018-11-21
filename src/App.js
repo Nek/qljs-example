@@ -1,63 +1,59 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { parseChildren, registerQuery, parseQueryIntoMap, getQuery } from './ql'
+import createMultimethod from './multimethod'
 import './App.css'
 
-import uuid from 'uuid/v4'
-
-const registry = new Map()
-
-const query = q => comp => {
-  registry.set(comp, { query: q })
-  return comp
+function createInstance(Component, atts) {
+  const { env, query } = atts
+  return React.createElement(Component, { atts, env, query })
 }
 
-const state = {
-  'app/todos': {
-    0: { 'todo/text': 'First' },
-    1: { 'todo/text': 'Second' },
-    2: { 'todo/text': 'Third' },
-  },
+const dispatch = ([first]) => first
+const noMatch = term => {
+  throw new Error('No match for ' + term)
 }
+const read = createMultimethod(dispatch, noMatch)
 
-const parse = q => {
-  switch (q) {
-    case 'app/todos':
-      return {
-        todos: Object.entries(state[q]).map(([id, data]) => ({
-          text: data['todo/text'],
-          id,
-        })),
-      }
-    case 'todo/text':
-      return { text: state[q] }
-    default: {
-    }
+read.name = (term, { personId }, state) => {
+  return state.people[personId].name
+}
+read.age = (term, { personId }, state) => {
+  return state.people[personId].age
+}
+read.todos = (term, env, state) => {
+  const [, { personId }] = term
+  if (personId) {
+    return parseChildren(state, read, term, { ...env, personId })
+  } else {
+    const res = Object.keys(state.todos).map(personId =>
+      parseChildren(state, read, term, { ...env, personId }),
+    )
+    return res
   }
 }
 
-const TextItem = ({ text }) => {
-  return <li>{text}</li>
-}
+const Todo = registerQuery([['name'], ['age']], ({ atts: { name, age } }) => (
+  <li>
+    {name} {age}
+  </li>
+))
 
-const Todo = query('todo/text')(TextItem)
-
-const Todos = query('app/todos')(({ todos }) => {
-  return (
-    <ol>
-      {Object.values(todos).map(({ text }) => (
-        <li>{text}</li>
-      ))}
-    </ol>
-  )
+const TodoList = registerQuery([['todos', {}, ...getQuery(Todo)]], props => {
+  const todos = props.atts.todos
+  return <ol>{todos.map(todo => createInstance(Todo, todo))}</ol>
 })
 
-const render = Comp => {
-  const props = parse(registry.get(Comp).query)
-  debugger
-  return <Comp {...props} />
+const state = {
+  todos: {
+    0: { name: 'Nik', age: 37 },
+    1: { name: 'Alya', age: 32 },
+  },
 }
 
 const App = () => {
-  return render(Todos)
+  const atts = parseQueryIntoMap(state, read, getQuery(TodoList), {})
+  console.log(atts)
+  return createInstance(TodoList, atts)
 }
 
 export default App

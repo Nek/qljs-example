@@ -1,27 +1,17 @@
-import {getQuery, registerQuery, clearRegistry, parseQueryIntoMap, parseChildren} from './ql'
+import {registerQuery, clearRegistry, parseQueryIntoMap, parseChildren} from './ql'
+import createMultimethod from './multimethod'
 
-
-describe('ql', () => {
-  it('returns itself for a primitive query', () => {
-    expect(getQuery([['boxes']])).toEqual([['boxes']])
-  })
-  it('returns registered query for query key', () => {
-    clearRegistry()
-    const component = {}
-    registerQuery(component, [['boxes']])
-    expect(getQuery(component)).toEqual([['boxes']])
-  })
-  describe.only('parseQueryIntoMap', () => {
-    const readName = (term, {personId}, state) => {
+const dispatch = ([first]) => first
+const noMatch = (term) => {throw new Error('No match for ' + term)}
+let reader = createMultimethod(dispatch, noMatch)
+reader.name =  (term, {personId}, state) => {
       return state.people[personId].name
-    }
-
-    const readAge = (term, {personId}, state) => {
+}
+reader.age =  (term, {personId}, state) => {
       return state.people[personId].age
-    }
-
-    const readPeople = (term, env, state) => {
-      const [, {personId}] = term
+}
+reader.people =  (term, env, state) => {
+  const [, {personId}] = term
       if (personId) {
         return parseChildren(state, reader, term, {...env, personId})
       } else {
@@ -30,29 +20,103 @@ describe('ql', () => {
         return res
       }
     }
-    
-    const reader = (term, env, state) => {
-      switch(term[0]) {
-      case 'people':
-        return readPeople(term, env, state)
-      case 'name':
-        return readName(term, env, state)
-        case 'age':
-        return readAge(term, env, state)
-      default:
-        throw new Error('No such term reader.')
-      }
-    }
-    console.log(JSON.stringify(parseQueryIntoMap(
-      {people: {
-        0: {name: 'Nik', age: 37},
-        1: {name: 'Alya', age: 32}
-      }},
-      reader,
-      [['people', {}, ['name'], ['age']]],
-      {}
-    )))
+
+describe('ql', () => {
+  const state = {people: {
+    0: {name: 'Nik', age: 37},
+    1: {name: 'Alya', age: 32}
+  }}
+  describe('parseQueryIntoMap', () => {
+    it('should parse a simple query', () => {
+      const query = [['name'], ['age']]
+      const env = {personId:0}
+      expect(parseQueryIntoMap(
+        state,
+        reader,
+        query,
+        env
+      )).toEqual({atts:
+                  {name: 'Nik', age: 37},
+                  env: {personId: 0},
+                  query})
+    })
+    it('should parse nested queries', () => {
+      const query = [['people', {}, ['name'], ['age']]]
+      const env = {}
+      expect(parseQueryIntoMap(
+        state,
+        reader,
+        query,
+        env
+      )).toEqual({
+        atts: expect.anything(),
+        env: expect.anything(),
+        query: expect.anything(),
+      })
+
+      expect(parseQueryIntoMap(
+        state,
+        reader,
+        query,
+        env
+      )).toEqual({
+        atts: expect.objectContaining({
+          people: [{atts: {name: 'Nik', age: 37},
+                    env: expect.anything(),
+                    query: expect.anything()},
+                   {atts: {name: 'Alya', age: 32},
+                    env: expect.anything(),
+                    query: expect.anything()}]}),
+        env: expect.anything(),
+        query: expect.anything(),
+      })
+
+       expect(parseQueryIntoMap(
+        state,
+        reader,
+        query,
+        env
+      )).toEqual({
+        atts: {
+          people: [
+            {atts: expect.anything(),
+             env: expect.anything(),
+             query: [['name'],['age']]},
+            {atts: expect.anything(),
+             env: expect.anything(),
+             query: [['name'],['age']]}
+          ]},
+        env: {},
+        query,
+      })
+
+      expect(parseQueryIntoMap(
+        state,
+        reader,
+        query,
+        env
+      )).toEqual({
+        atts: {
+          people: [
+            {atts: expect.anything(),
+             env:
+             expect.objectContaining(
+               {parentEnv:
+                {personId: "0",
+                 queryKey: "people"},
+                personId: "0"}),
+             query: [["name"], ["age"]]},
+            {atts: expect.anything(),
+             env: expect.anything(),
+             query: [['name'],['age']]}
+          ]},
+        env: expect.anything(),
+        query,
+      })
+
+    })
+
+
+
   })
 })
-
-
