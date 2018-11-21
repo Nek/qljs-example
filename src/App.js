@@ -5,7 +5,7 @@ import {
   registerQuery,
   parseQueryIntoMap,
   getQuery,
-  // dispatch,
+  dispatch,
 } from './ql'
 import createMultimethod from './multimethod'
 import './App.css'
@@ -15,11 +15,7 @@ function createInstance(Component, atts) {
   return React.createElement(Component, { ...atts, env, query, key: env.id })
 }
 
-const dispatch = ([first]) => first
-const noMatch = term => {
-  throw new Error('No match for ' + term)
-}
-const read = createMultimethod(dispatch, noMatch)
+const read = createMultimethod()
 
 read.title = (term, { id }, state) => {
   return state.todos[id].title
@@ -39,10 +35,10 @@ read.todos = (term, env, state) => {
   }
 }
 
-// const mutate = createMultimethod(dispatch, noMatch)
-// mutate['todo/delete'] = () => (term, {id}, state) {
-//   state.todos = {}
-// }
+const mutate = createMultimethod()
+mutate['todo/delete'] = (term, { id }, state) => {
+  delete state.todos[id]
+}
 
 // (defmethod mutate :todo/delete!
 //   [query-term {:keys [todo-id] :as env} state-atom]
@@ -51,7 +47,7 @@ read.todos = (term, env, state) => {
 const Todo = registerQuery([['title'], ['done']], ({ title, done }) => (
   <li>
     {title}
-    {/* <button onClick={() => dispatch(this, ['todo/delete'])}>x</button> */}
+    {<button onClick={() => dispatch(this, ['todo/delete'])}>x</button>}
   </li>
 ))
 

@@ -1,4 +1,8 @@
-export default function createMultimethod(dispatch, noMatch) {
+export default function createMultimethod() {
+  const dispatch = ([first]) => first
+  const noMatch = term => {
+    throw new Error('No match for ' + term)
+  }
   if (typeof dispatch !== 'function') {
     throw new TypeError('dispatch must be a function')
   }

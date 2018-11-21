@@ -1065,6 +1065,41 @@
     "@svgr/core" "^2.4.1"
     loader-utils "^1.1.0"
 
+"@thi.ng/api@^4.2.3":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/@thi.ng/api/-/api-4.2.3.tgz#cacf594c7fe15caa637c011ba6ade127792d818a"
+  dependencies:
+    "@thi.ng/errors" "^0.1.11"
+
+"@thi.ng/atom@^1.5.6":
+  version "1.5.6"
+  resolved "https://registry.yarnpkg.com/@thi.ng/atom/-/atom-1.5.6.tgz#581ab03d09a55cfb0b8cafc0f7fc440fa84b13b1"
+  dependencies:
+    "@thi.ng/api" "^4.2.3"
+    "@thi.ng/checks" "^1.5.13"
+    "@thi.ng/equiv" "^0.1.13"
+    "@thi.ng/errors" "^0.1.11"
+    "@thi.ng/paths" "^1.6.5"
+
+"@thi.ng/checks@^1.5.13":
+  version "1.5.13"
+  resolved "https://registry.yarnpkg.com/@thi.ng/checks/-/checks-1.5.13.tgz#1f066907d48b8c52a80ab6528698b251a65a70ab"
+
+"@thi.ng/equiv@^0.1.13":
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/@thi.ng/equiv/-/equiv-0.1.13.tgz#89e16d2dcbdd0600878dfb5c7bf36f184143a0bb"
+
+"@thi.ng/errors@^0.1.11":
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@thi.ng/errors/-/errors-0.1.11.tgz#f4f1177a1d44f549d76f5e4a1126d6cf7b89f426"
+
+"@thi.ng/paths@^1.6.5":
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/@thi.ng/paths/-/paths-1.6.5.tgz#3a628e40c56761759ef537400410b8f8b6818b47"
+  dependencies:
+    "@thi.ng/checks" "^1.5.13"
+    "@thi.ng/errors" "^0.1.11"
+
 "@types/node@*":
   version "10.12.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.0.tgz#ea6dcbddbc5b584c83f06c60e82736d8fbb0c235"
