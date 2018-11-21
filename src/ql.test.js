@@ -35,8 +35,8 @@ describe('ql', () => {
         reader,
         query,
         env
-      )).toEqual({atts:
-                  {name: 'Nik', age: 37},
+      )).toEqual({
+                  name: 'Nik', age: 37,
                   env: {personId: 0},
                   query})
     })
@@ -49,7 +49,7 @@ describe('ql', () => {
         query,
         env
       )).toEqual({
-        atts: expect.anything(),
+        people: expect.anything(),
         env: expect.anything(),
         query: expect.anything(),
       })
@@ -60,14 +60,16 @@ describe('ql', () => {
         query,
         env
       )).toEqual({
-        atts: expect.objectContaining({
-          people: [{atts: {name: 'Nik', age: 37},
+        env: expect.anything(),
+        people: [{name: 'Nik', age: 37,
+
                     env: expect.anything(),
                     query: expect.anything()},
-                   {atts: {name: 'Alya', age: 32},
+                 {name: 'Alya', age: 32,
+
                     env: expect.anything(),
-                    query: expect.anything()}]}),
-        env: expect.anything(),
+                    query: expect.anything()}],
+
         query: expect.anything(),
       })
 
@@ -77,15 +79,19 @@ describe('ql', () => {
         query,
         env
       )).toEqual({
-        atts: {
+
           people: [
-            {atts: expect.anything(),
-             env: expect.anything(),
-             query: [['name'],['age']]},
-            {atts: expect.anything(),
-             env: expect.anything(),
-             query: [['name'],['age']]}
-          ]},
+            {
+              age: expect.anything(),
+              name: expect.anything(),
+              env: expect.anything(),
+              query: [['name'],['age']]},
+            {
+              age: expect.anything(),
+              name: expect.anything(),
+              env: expect.anything(),
+              query: [['name'],['age']]}
+          ],
         env: {},
         query,
       })
@@ -96,27 +102,32 @@ describe('ql', () => {
         query,
         env
       )).toEqual({
-        atts: {
           people: [
-            {atts: expect.anything(),
+            {
+              name: 'Nik',
+                age: 37,
              env:
              expect.objectContaining(
-               {parentEnv:
+               {
+                 parentEnv:
                 {personId: "0",
                  queryKey: "people"},
                 personId: "0"}),
              query: [["name"], ["age"]]},
-            {atts: expect.anything(),
-             env: expect.anything(),
+            {
+              name: 'Alya',
+                age: 32,
+             env: expect.objectContaining(
+               {
+                 parentEnv:
+                {personId: "1",
+                 queryKey: "people"},
+                personId: "1"}),
              query: [['name'],['age']]}
-          ]},
+          ],
         env: expect.anything(),
         query,
       })
-
     })
-
-
-
   })
 })

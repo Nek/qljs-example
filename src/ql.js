@@ -22,7 +22,6 @@ const parseQuery = (state, read, query, env) => {
     return parseQuery(state, read, query, {})
   }
   return query.map(queryTerm => {
-    console.log('!', queryTerm)
     return parseQueryTerm(state, read, queryTerm, env)
   })
 }
