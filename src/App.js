@@ -15,18 +15,18 @@ const noMatch = term => {
 const read = createMultimethod(dispatch, noMatch)
 
 read.name = (term, { personId }, state) => {
-  return state.people[personId].name
+  return state.todos[personId].name
 }
 read.age = (term, { personId }, state) => {
-  return state.people[personId].age
+  return state.todos[personId].age
 }
 read.todos = (term, env, state) => {
   const [, { personId }] = term
   if (personId) {
-    return parseChildren(state, read, term, { ...env, personId })
+    return parseChildren(state, { read }, term, { ...env, personId })
   } else {
     const res = Object.keys(state.todos).map(personId =>
-      parseChildren(state, read, term, { ...env, personId }),
+      parseChildren(state, { read }, term, { ...env, personId }),
     )
     return res
   }
@@ -51,7 +51,7 @@ const state = {
 }
 
 const App = () => {
-  const atts = parseQueryIntoMap(state, read, getQuery(TodoList), {})
+  const atts = parseQueryIntoMap(state, { read }, getQuery(TodoList), {})
   console.log(atts)
   return createInstance(TodoList, atts)
 }

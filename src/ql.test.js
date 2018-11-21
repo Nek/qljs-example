@@ -3,6 +3,7 @@ import createMultimethod from './multimethod'
 
 const dispatch = ([first]) => first
 const noMatch = (term) => {throw new Error('No match for ' + term)}
+
 let read = createMultimethod(dispatch, noMatch)
 read.name =  (term, {personId}, state) => {
       return state.people[personId].name
