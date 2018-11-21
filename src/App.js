@@ -5,7 +5,7 @@ import './App.css'
 
 function createInstance(Component, atts) {
   const { env, query } = atts
-  return React.createElement(Component, { atts, env, query })
+  return React.createElement(Component, { atts, env, query, key: env.id })
 }
 
 const dispatch = ([first]) => first
