@@ -3,20 +3,20 @@ import createMultimethod from './multimethod'
 
 const dispatch = ([first]) => first
 const noMatch = (term) => {throw new Error('No match for ' + term)}
-let reader = createMultimethod(dispatch, noMatch)
-reader.name =  (term, {personId}, state) => {
+let read = createMultimethod(dispatch, noMatch)
+read.name =  (term, {personId}, state) => {
       return state.people[personId].name
 }
-reader.age =  (term, {personId}, state) => {
+read.age =  (term, {personId}, state) => {
       return state.people[personId].age
 }
-reader.people =  (term, env, state) => {
+read.people =  (term, env, state) => {
   const [, {personId}] = term
       if (personId) {
-        return parseChildren(state, reader, term, {...env, personId})
+        return parseChildren(state, {read}, term, {...env, personId})
       } else {
         const res = Object.keys(state.people)
-              .map(personId => parseChildren(state, reader,term, {...env, personId}))
+              .map(personId => parseChildren(state, {read},term, {...env, personId}))
         return res
       }
     }
@@ -32,7 +32,7 @@ describe('ql', () => {
       const env = {personId:0}
       expect(parseQueryIntoMap(
         state,
-        reader,
+        {read},
         query,
         env
       )).toEqual({
@@ -45,7 +45,7 @@ describe('ql', () => {
       const env = {}
       expect(parseQueryIntoMap(
         state,
-        reader,
+        {read},
         query,
         env
       )).toEqual({
@@ -56,7 +56,7 @@ describe('ql', () => {
 
       expect(parseQueryIntoMap(
         state,
-        reader,
+        {read},
         query,
         env
       )).toEqual({
@@ -75,7 +75,7 @@ describe('ql', () => {
 
        expect(parseQueryIntoMap(
         state,
-        reader,
+        {read},
         query,
         env
       )).toEqual({
@@ -98,7 +98,7 @@ describe('ql', () => {
 
       expect(parseQueryIntoMap(
         state,
-        reader,
+        {read},
         query,
         env
       )).toEqual({

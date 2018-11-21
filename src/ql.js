@@ -13,25 +13,25 @@ export function clearRegistry() {
   registry.clear()
 }
 
-const parseQueryTerm = (state, read, queryTerm, env) => {
+const parseQueryTerm = (state, { read }, queryTerm, env) => {
   return read(queryTerm, env, state)
 }
 
-const parseQuery = (state, read, query, env) => {
+const parseQuery = (state, { read }, query, env) => {
   if (env === undefined) {
-    return parseQuery(state, read, query, {})
+    return parseQuery(state, { read }, query, {})
   }
   return query.map(queryTerm => {
-    return parseQueryTerm(state, read, queryTerm, env)
+    return parseQueryTerm(state, { read }, queryTerm, env)
   })
 }
 
 const zip = (a1, a2) => a1.map((x, i) => [x, a2[i]])
 const first = ([f]) => f
 
-export function parseQueryIntoMap(state, read, query, env) {
+export function parseQueryIntoMap(state, { read }, query, env) {
   const queryName = query.map(first)
-  const queryResult = parseQuery(state, read, query, env)
+  const queryResult = parseQuery(state, { read }, query, env)
   const atts = zip(queryName, queryResult).reduce(
     (res, [k, v]) => ({ ...res, [k]: v }),
     {},
@@ -44,8 +44,8 @@ export function parseQueryIntoMap(state, read, query, env) {
   }
 }
 
-export function parseChildren(state, read, term, env) {
+export function parseChildren(state, { read }, term, env) {
   const [, , ...query] = term
   const newEnv = { ...env, parentEnv: { ...env, queryKey: term[0] } }
-  return parseQueryIntoMap(state, read, query, newEnv)
+  return parseQueryIntoMap(state, { read }, query, newEnv)
 }
