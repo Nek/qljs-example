@@ -14,39 +14,44 @@ const noMatch = term => {
 }
 const read = createMultimethod(dispatch, noMatch)
 
-read.name = (term, { personId }, state) => {
-  return state.todos[personId].name
+read.title = (term, { id }, state) => {
+  return state.todos[id].title
 }
-read.age = (term, { personId }, state) => {
-  return state.todos[personId].age
+read.done = (term, { id }, state) => {
+  return state.todos[id].done
 }
 read.todos = (term, env, state) => {
-  const [, { personId }] = term
-  if (personId) {
-    return parseChildren(state, { read }, term, { ...env, personId })
+  const [, { id }] = term
+  if (id) {
+    return parseChildren(state, { read }, term, { ...env, id })
   } else {
-    const res = Object.keys(state.todos).map(personId =>
-      parseChildren(state, { read }, term, { ...env, personId }),
+    const res = Object.keys(state.todos).map(id =>
+      parseChildren(state, { read }, term, { ...env, id }),
     )
     return res
   }
 }
 
-const Todo = registerQuery([['name'], ['age']], ({ atts: { name, age } }) => (
-  <li>
-    {name} {age}
-  </li>
-))
+const mutate = createMultimethod(dispatch, noMatch)
+
+const Todo = registerQuery(
+  [['title'], ['done']],
+  ({ atts: { title, done } }) => (
+    <li>
+      {title} {done ? 'v' : 'o'}
+    </li>
+  ),
+)
 
 const TodoList = registerQuery([['todos', {}, ...getQuery(Todo)]], props => {
   const todos = props.atts.todos
-  return <ol>{todos.map(todo => createInstance(Todo, todo))}</ol>
+  return <ul>{todos.map(todo => createInstance(Todo, todo))}</ul>
 })
 
 const state = {
   todos: {
-    0: { name: 'Nik', age: 37 },
-    1: { name: 'Alya', age: 32 },
+    0: { title: 'Buy milk', done: false },
+    1: { title: 'Do dishes', done: true },
   },
 }
 
