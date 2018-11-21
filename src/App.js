@@ -1,11 +1,18 @@
 import React from 'react'
-import { parseChildren, registerQuery, parseQueryIntoMap, getQuery } from './ql'
+import * as atom from '@thi.ng/atom'
+import {
+  parseChildren,
+  registerQuery,
+  parseQueryIntoMap,
+  getQuery,
+  // dispatch,
+} from './ql'
 import createMultimethod from './multimethod'
 import './App.css'
 
 function createInstance(Component, atts) {
   const { env, query } = atts
-  return React.createElement(Component, { atts, env, query, key: env.id })
+  return React.createElement(Component, { ...atts, env, query, key: env.id })
 }
 
 const dispatch = ([first]) => first
@@ -32,23 +39,27 @@ read.todos = (term, env, state) => {
   }
 }
 
-const mutate = createMultimethod(dispatch, noMatch)
+// const mutate = createMultimethod(dispatch, noMatch)
+// mutate['todo/delete'] = () => (term, {id}, state) {
+//   state.todos = {}
+// }
 
-const Todo = registerQuery(
-  [['title'], ['done']],
-  ({ atts: { title, done } }) => (
-    <li>
-      {title} {done ? 'v' : 'o'}
-    </li>
-  ),
-)
+// (defmethod mutate :todo/delete!
+//   [query-term {:keys [todo-id] :as env} state-atom]
+//   (swap! state-atom update :todo/by-id dissoc todo-id))
+
+const Todo = registerQuery([['title'], ['done']], ({ title, done }) => (
+  <li>
+    {title}
+    {/* <button onClick={() => dispatch(this, ['todo/delete'])}>x</button> */}
+  </li>
+))
 
 const TodoList = registerQuery([['todos', {}, ...getQuery(Todo)]], props => {
-  const todos = props.atts.todos
-  return <ul>{todos.map(todo => createInstance(Todo, todo))}</ul>
+  return <ul>{props.todos.map(todo => createInstance(Todo, todo))}</ul>
 })
 
-const state = {
+let state = {
   todos: {
     0: { title: 'Buy milk', done: false },
     1: { title: 'Do dishes', done: true },
@@ -57,7 +68,6 @@ const state = {
 
 const App = () => {
   const atts = parseQueryIntoMap(state, { read }, getQuery(TodoList), {})
-  console.log(atts)
   return createInstance(TodoList, atts)
 }
 
