@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import uuid from 'uuid'
 import './App.css'
 import {
@@ -14,19 +14,19 @@ import {
 
 const { read, mutate, remote } = parsers
 
-read['title'] = (term, { id }) => {
+read['title'] = (term, { id }, state) => {
   return state.todos[id] && state.todos[id].title
 }
 
-read['done'] = (term, { id }) => {
+read['done'] = (term, { id }, state) => {
   return state.todos[id] && state.todos[id].done
 }
 
-read['id'] = (term, { id }) => {
+read['id'] = (term, { id }, state) => {
   return state.todos[id] && id
 }
 
-read['todos'] = (term, env) => {
+read['todos'] = (term, env, state) => {
   const [, { id }] = term
   if (id) {
     return parseChildren(term, { ...env, id })
@@ -38,17 +38,14 @@ read['todos'] = (term, env) => {
   }
 }
 
-mutate['todo/delete'] = (term, { id }) => {
+mutate['todo/delete'] = (term, { id }, state) => {
   const newTodos = { ...state.todos }
   delete newTodos[id]
-  state = { ...state, todos: newTodos }
+  state.todos = newTodos
 }
 
-mutate['todo/new'] = ([key, { title }]) => {
-  state = {
-    ...state,
-    todos: { ...state.todos, [uuid()]: { title, done: false } },
-  }
+mutate['todo/new'] = ([key, { title }], {}, state) => {
+  state.todos = { ...state.todos, [uuid()]: { title, done: false } }
 }
 
 remote['todo/new'] = (queryTerm, state) => {
@@ -86,15 +83,15 @@ const Todo = query([['title', {}], ['done', {}], ['id', {}]], props => {
 })
 
 const TodoList = query([['todos', {}, ...getQuery(Todo)]], props => {
+  const [title, setTitle] = useState('')
   return (
     <div>
+      <input onChange={e => setTitle(e.target.value)} value={title} />
       <button
-        onClick={() =>
-          transact(props, [
-            ['todo/new', { title: '123' }],
-            ['todo/new', { title: '123' }],
-          ])
-        }>
+        onClick={() => {
+          transact(props, [['todo/new', { title }]])
+          setTitle('')
+        }}>
         Add
       </button>
       <ul>{props.todos.map(todo => createInstance(Todo, todo))}</ul>

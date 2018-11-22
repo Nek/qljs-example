@@ -37,9 +37,9 @@ export function clearRegistry() {
 const parseQueryTerm = (queryTerm, env) => {
   const mutateFn = mutate[queryTerm[0]]
   if (mutateFn) {
-    mutateFn(queryTerm, env)
+    mutateFn(queryTerm, env, state)
   } else {
-    return read(queryTerm, env)
+    return read(queryTerm, env, state)
   }
 }
 
@@ -72,7 +72,6 @@ function parseQueryRemote(query) {
     const { remote } = parsers
     if (remote[first(item)]) {
       const v = remote(item, state)
-      console.log(item[0], v)
       if (v) {
         return [...acc, v]
       } else {
