@@ -3,6 +3,13 @@ import createMultimethod from './multimethod'
 
 const read = createMultimethod()
 const mutate = createMultimethod()
+const remote = createMultimethod()
+
+export const parsers = {
+  read,
+  mutate,
+  remote,
+}
 
 const isMutationQuery = ([tag]) => {
   return mutate[tag] ? true : false
@@ -59,6 +66,49 @@ export function parseQueryIntoMap(query, env) {
   }
 }
 
+function parseQueryRemote(query) {
+  return query.reduce((acc, item) => {
+    console.log('!!!')
+    const { remote } = parsers
+    if (remote[item]) {
+      const v = remote(item, state)
+      if (v) {
+        return [...acc, v]
+      } else {
+        return acc
+      }
+    } else {
+      return acc
+    }
+  }, [])
+}
+
+export function parseChildrenRemote([dispatchKey, params, ...chi]) {
+  const chiRemote = parseQueryRemote(chi)
+  return Array.isArray(chiRemote) && [...[dispatchKey, params], ...chiRemote]
+}
+
+function parseQueryTermSync(queryTerm, result, env) {
+  const { sync } = parsers
+  const syncFun = sync[queryTerm[0]]
+  if (syncFun) {
+    syncFun(queryTerm, result, env, state)
+  } else {
+    //TODO: Missing sync parser warning
+  }
+}
+
+let handler = console.log
+
+function performRemoteQuery(query) {
+  if (Array.isArray(query) && handler) {
+    handler(query, results => {
+      zip(query, results).map(([k, v]) => parseQueryTermSync(k, v, {}))
+      refresh(false)
+    })
+  }
+}
+
 function mapDelta(map1, map2) {
   return Object.entries(map2)
     .filter(([k, v]) => v !== map1[k])
@@ -98,12 +148,7 @@ export function transact(props, query) {
   const { env } = props
   const rootQuery = makeRootQuery(env, query)
   parseQuery(rootQuery, env)
-  refresh()
-}
-
-export const parsers = {
-  read,
-  mutate,
+  refresh(false)
 }
 
 export function createInstance(Component, atts) {
@@ -111,13 +156,26 @@ export function createInstance(Component, atts) {
   return React.createElement(Component, { ...atts, env, query, key: env.id })
 }
 
-let refresh
+let refresh = isRemoteQuery => {
+  const query = getQuery(rootComp)
+  // const atts = parseQueryIntoMap(query)
+  if (isRemoteQuery) {
+    performRemoteQuery(parseQueryRemote(query))
+  }
+  forceUpdate()
+}
+let forceUpdate
+let state
+let rootComp
 
-export const QL = Comp =>
-  class extends React.Component {
+export const QL = (Comp, _state) => {
+  rootComp = Comp
+  state = _state
+  return class extends React.Component {
     render() {
-      refresh = this.forceUpdate.bind(this)
+      forceUpdate = this.forceUpdate.bind(this)
       const atts = parseQueryIntoMap(getQuery(Comp), {})
       return createInstance(Comp, atts)
     }
   }
+}

@@ -1,18 +1,18 @@
 import React from 'react'
+import uuid from 'uuid'
+import './App.css'
 import {
-  parseChildren,
-  query,
+  createInstance,
   getQuery,
-  transact,
+  parseChildren,
+  parseChildrenRemote,
   parsers,
   QL,
-  createInstance,
+  query,
+  transact,
 } from './ql'
-import './App.css'
 
-import uuid from 'uuid'
-
-const { read, mutate } = parsers
+const { read, mutate, remote } = parsers
 
 read['title'] = (term, { id }) => {
   return state.todos[id].title
@@ -44,6 +44,14 @@ mutate['todo/add'] = ([key, { title }]) => {
   }
 }
 
+remote['todos'] = (queryTerm, state) => {
+  return parseChildrenRemote(queryTerm)
+}
+
+remote['todo/add'] = (queryTerm, state) => {
+  return queryTerm
+}
+
 const Todo = query([['title'], ['done']], props => {
   const { title } = props
   return (
@@ -57,7 +65,13 @@ const Todo = query([['title'], ['done']], props => {
 const TodoList = query([['todos', {}, ...getQuery(Todo)]], props => {
   return (
     <div>
-      <button onClick={() => transact(props, [['todo/add', { title: '123' }]])}>
+      <button
+        onClick={() =>
+          transact(props, [
+            ['todo/add', { title: '123' }],
+            ['todo/add', { title: '123' }],
+          ])
+        }>
         Add
       </button>
       <ul>{props.todos.map(todo => createInstance(Todo, todo))}</ul>
