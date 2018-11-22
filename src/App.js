@@ -7,7 +7,7 @@ import {
   parseChildren,
   parseChildrenRemote,
   parsers,
-  QL,
+  mount,
   query,
   transact,
 } from './ql'
@@ -86,4 +86,9 @@ let state = {
   },
 }
 
-export default QL(TodoList)
+mount({
+  component: TodoList,
+  element: document.getElementById('root'),
+  state,
+  remoteHandler: console.log,
+})

@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import createMultimethod from './multimethod'
 
 const read = createMultimethod()
@@ -153,29 +154,37 @@ export function transact(props, query) {
 
 export function createInstance(Component, atts) {
   const { env, query } = atts
-  return React.createElement(Component, { ...atts, env, query, key: env.id })
+  return React.createElement(Component, {
+    ...atts,
+    env,
+    query,
+    key: env.id ? env.id : '_',
+  })
 }
 
 let refresh = isRemoteQuery => {
-  const query = getQuery(rootComp)
-  // const atts = parseQueryIntoMap(query)
+  const query = getQuery(Component)
+  const atts = parseQueryIntoMap(query, {})
   if (isRemoteQuery) {
     performRemoteQuery(parseQueryRemote(query))
   }
-  forceUpdate()
+  ReactDOM.render(createInstance(Component, atts), element)
 }
-let forceUpdate
-let state
-let rootComp
 
-export const QL = (Comp, _state) => {
-  rootComp = Comp
-  state = _state
-  return class extends React.Component {
-    render() {
-      forceUpdate = this.forceUpdate.bind(this)
-      const atts = parseQueryIntoMap(getQuery(Comp), {})
-      return createInstance(Comp, atts)
-    }
-  }
+let Component
+let element
+let state
+let remoteHandler
+
+export function mount({
+  component,
+  element: _el,
+  state: _st,
+  remoteHandler: _rh,
+}) {
+  Component = component
+  element = _el
+  state = _st
+  remoteHandler = _rh
+  refresh(true)
 }
