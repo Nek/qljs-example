@@ -1,19 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import createMultimethod from './multimethod'
+
+import { read, mutate, remote } from './parsers'
 
 const zip = (a1, a2) => a1.map((x, i) => [x, a2[i]])
 const first = ([f]) => f
-
-const read = createMultimethod(first)
-const mutate = createMultimethod(first)
-const remote = createMultimethod(first)
-
-export const parsers = {
-  read,
-  mutate,
-  remote,
-}
 
 const isMutationQuery = ([tag]) => {
   return mutate[tag] ? true : false
@@ -69,7 +60,6 @@ export function parseQueryIntoMap(query, env) {
 
 function parseQueryRemote(query) {
   return query.reduce((acc, item) => {
-    const { remote } = parsers
     if (remote[first(item)]) {
       const v = remote(item, state)
       if (v) {
@@ -89,7 +79,7 @@ export function parseChildrenRemote([dispatchKey, params, ...chi]) {
 }
 
 function parseQueryTermSync(queryTerm, result, env) {
-  const { sync } = parsers
+  const { sync } = { sync: {} }
   const syncFun = sync[queryTerm[0]]
   if (syncFun) {
     syncFun(queryTerm, result, env, state)
