@@ -1,5 +1,4 @@
 const noMatch = term => {
-  debugger
   throw new Error('No match for ' + term)
 }
 
