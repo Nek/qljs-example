@@ -1,10 +1,9 @@
-const dispatch = ([first]) => first
 const noMatch = term => {
   debugger
   throw new Error('No match for ' + term)
 }
 
-export default function createMultimethod() {
+export default function createMultimethod(dispatch) {
   const dict = {}
   if (typeof noMatch == 'function') {
     dict.noMatch = noMatch

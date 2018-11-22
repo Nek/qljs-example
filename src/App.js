@@ -15,11 +15,17 @@ import {
 const { read, mutate, remote } = parsers
 
 read['title'] = (term, { id }) => {
-  return state.todos[id].title
+  return state.todos[id] && state.todos[id].title
 }
+
 read['done'] = (term, { id }) => {
-  return state.todos[id].done
+  return state.todos[id] && state.todos[id].done
 }
+
+read['id'] = (term, { id }) => {
+  return state.todos[id] && id
+}
+
 read['todos'] = (term, env) => {
   const [, { id }] = term
   if (id) {
@@ -37,22 +43,39 @@ mutate['todo/delete'] = (term, { id }) => {
   delete newTodos[id]
   state = { ...state, todos: newTodos }
 }
-mutate['todo/add'] = ([key, { title }]) => {
+
+mutate['todo/new'] = ([key, { title }]) => {
   state = {
     ...state,
     todos: { ...state.todos, [uuid()]: { title, done: false } },
   }
 }
 
+remote['todo/new'] = (queryTerm, state) => {
+  return queryTerm
+}
+
+remote['todo/delete'] = (queryTerm, state) => {
+  return queryTerm
+}
+
+remote['title'] = (queryTerm, state) => {
+  return queryTerm
+}
+
+remote['done'] = (queryTerm, state) => {
+  return queryTerm
+}
+
+remote['id'] = (queryTerm, state) => {
+  return queryTerm
+}
+
 remote['todos'] = (queryTerm, state) => {
   return parseChildrenRemote(queryTerm)
 }
 
-remote['todo/add'] = (queryTerm, state) => {
-  return queryTerm
-}
-
-const Todo = query([['title'], ['done']], props => {
+const Todo = query([['title', {}], ['done', {}], ['id', {}]], props => {
   const { title } = props
   return (
     <li>
@@ -68,8 +91,8 @@ const TodoList = query([['todos', {}, ...getQuery(Todo)]], props => {
       <button
         onClick={() =>
           transact(props, [
-            ['todo/add', { title: '123' }],
-            ['todo/add', { title: '123' }],
+            ['todo/new', { title: '123' }],
+            ['todo/new', { title: '123' }],
           ])
         }>
         Add
@@ -86,9 +109,13 @@ let state = {
   },
 }
 
+const remoteHandler = (query, callback) => {
+  console.log(query)
+}
+
 mount({
   component: TodoList,
   element: document.getElementById('root'),
   state,
-  remoteHandler: console.log,
+  remoteHandler,
 })

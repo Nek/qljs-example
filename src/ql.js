@@ -2,9 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import createMultimethod from './multimethod'
 
-const read = createMultimethod()
-const mutate = createMultimethod()
-const remote = createMultimethod()
+const zip = (a1, a2) => a1.map((x, i) => [x, a2[i]])
+const first = ([f]) => f
+
+const read = createMultimethod(first)
+const mutate = createMultimethod(first)
+const remote = createMultimethod(first)
 
 export const parsers = {
   read,
@@ -49,9 +52,6 @@ const parseQuery = (query, env) => {
   })
 }
 
-const zip = (a1, a2) => a1.map((x, i) => [x, a2[i]])
-const first = ([f]) => f
-
 export function parseQueryIntoMap(query, env) {
   const queryName = query.map(first)
   const queryResult = parseQuery(query, env)
@@ -69,10 +69,10 @@ export function parseQueryIntoMap(query, env) {
 
 function parseQueryRemote(query) {
   return query.reduce((acc, item) => {
-    console.log('!!!')
     const { remote } = parsers
-    if (remote[item]) {
+    if (remote[first(item)]) {
       const v = remote(item, state)
+      console.log(item[0], v)
       if (v) {
         return [...acc, v]
       } else {
@@ -102,8 +102,8 @@ function parseQueryTermSync(queryTerm, result, env) {
 let handler = console.log
 
 function performRemoteQuery(query) {
-  if (Array.isArray(query) && handler) {
-    handler(query, results => {
+  if (Array.isArray(query) && remoteHandler) {
+    remoteHandler(query, results => {
       zip(query, results).map(([k, v]) => parseQueryTermSync(k, v, {}))
       refresh(false)
     })
@@ -146,9 +146,11 @@ export function parseChildren(term, env) {
 }
 
 export function transact(props, query) {
-  const { env } = props
-  const rootQuery = makeRootQuery(env, query)
+  const { env, query: componentQuery } = props
+  const rootQuery = makeRootQuery(env, [...query, ...componentQuery])
   parseQuery(rootQuery, env)
+  const q = parseQueryRemote(rootQuery)
+  performRemoteQuery(q)
   refresh(false)
 }
 
