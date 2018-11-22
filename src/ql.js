@@ -1,4 +1,4 @@
-import { rerender } from './index'
+import React from 'react'
 import createMultimethod from './multimethod'
 
 const read = createMultimethod()
@@ -6,7 +6,7 @@ const mutate = createMultimethod()
 
 const registry = new Map()
 
-export function registerQuery(query, key) {
+export function query(query, key) {
   registry.set(key, query)
   return key
 }
@@ -23,7 +23,7 @@ const parseQueryTerm = (queryTerm, env) => {
   const mutateFn = mutate[queryTerm[0]]
   if (mutateFn) {
     mutateFn(queryTerm, env)
-    rerender()
+    forceUpdate()
   } else {
     return read(queryTerm, env)
   }
@@ -92,7 +92,7 @@ export function parseChildren(term, env) {
 }
 
 export function transact(props, query) {
-  const { env, query: compQuery } = props
+  const { env } = props
   const rootQuery = makeRootQuery(env, query)
   parseQuery(rootQuery, env)
 }
@@ -101,3 +101,19 @@ export const parsers = {
   read,
   mutate,
 }
+
+export function createInstance(Component, atts) {
+  const { env, query } = atts
+  return React.createElement(Component, { ...atts, env, query, key: env.id })
+}
+
+let forceUpdate
+
+export const QL = Comp =>
+  class extends React.Component {
+    render() {
+      forceUpdate = this.forceUpdate.bind(this)
+      const atts = parseQueryIntoMap(getQuery(Comp), {})
+      return createInstance(Comp, atts)
+    }
+  }

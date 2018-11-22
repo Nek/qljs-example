@@ -4,8 +4,4 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
 
-export const rerender = () => {
-  ReactDOM.render(<App rerender />, document.getElementById('root'))
-}
-
-rerender()
+ReactDOM.render(<App rerender />, document.getElementById('root'))

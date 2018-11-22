@@ -1,4 +1,4 @@
-import {registerQuery, clearRegistry, parseQueryIntoMap, parseChildren} from './ql'
+import {QL, clearRegistry, parseQueryIntoMap, parseChildren} from './ql'
 import createMultimethod from './multimethod'
 
 const dispatch = ([first]) => first

@@ -1,21 +1,16 @@
 import React from 'react'
 import {
   parseChildren,
-  registerQuery,
-  parseQueryIntoMap,
+  query,
   getQuery,
   transact,
   parsers,
+  QL,
+  createInstance,
 } from './ql'
-import createMultimethod from './multimethod'
 import './App.css'
 
 import uuid from 'uuid'
-
-function createInstance(Component, atts) {
-  const { env, query } = atts
-  return React.createElement(Component, { ...atts, env, query, key: env.id })
-}
 
 const { read, mutate } = parsers
 
@@ -49,8 +44,8 @@ mutate['todo/add'] = ([key, { title }]) => {
   }
 }
 
-const Todo = registerQuery([['title'], ['done']], props => {
-  const { title, done } = props
+const Todo = query([['title'], ['done']], props => {
+  const { title } = props
   return (
     <li>
       {title}
@@ -59,7 +54,7 @@ const Todo = registerQuery([['title'], ['done']], props => {
   )
 })
 
-const TodoList = registerQuery([['todos', {}, ...getQuery(Todo)]], props => {
+const TodoList = query([['todos', {}, ...getQuery(Todo)]], props => {
   return (
     <div>
       <button onClick={() => transact(props, [['todo/add', { title: '123' }]])}>
@@ -77,9 +72,4 @@ let state = {
   },
 }
 
-const App = () => {
-  const atts = parseQueryIntoMap(getQuery(TodoList), {})
-  return createInstance(TodoList, atts)
-}
-
-export default App
+export default QL(TodoList)
