@@ -4,6 +4,10 @@ import createMultimethod from './multimethod'
 const read = createMultimethod()
 const mutate = createMultimethod()
 
+const isMutationQuery = ([tag]) => {
+  return mutate[tag] ? true : false
+}
+
 const registry = new Map()
 
 export function query(query, key) {
@@ -23,7 +27,6 @@ const parseQueryTerm = (queryTerm, env) => {
   const mutateFn = mutate[queryTerm[0]]
   if (mutateFn) {
     mutateFn(queryTerm, env)
-    forceUpdate()
   } else {
     return read(queryTerm, env)
   }
@@ -95,6 +98,7 @@ export function transact(props, query) {
   const { env } = props
   const rootQuery = makeRootQuery(env, query)
   parseQuery(rootQuery, env)
+  refresh()
 }
 
 export const parsers = {
@@ -107,12 +111,12 @@ export function createInstance(Component, atts) {
   return React.createElement(Component, { ...atts, env, query, key: env.id })
 }
 
-let forceUpdate
+let refresh
 
 export const QL = Comp =>
   class extends React.Component {
     render() {
-      forceUpdate = this.forceUpdate.bind(this)
+      refresh = this.forceUpdate.bind(this)
       const atts = parseQueryIntoMap(getQuery(Comp), {})
       return createInstance(Comp, atts)
     }
