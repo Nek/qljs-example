@@ -1065,41 +1065,6 @@
     "@svgr/core" "^2.4.1"
     loader-utils "^1.1.0"
 
-"@thi.ng/api@^4.2.3":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/@thi.ng/api/-/api-4.2.3.tgz#cacf594c7fe15caa637c011ba6ade127792d818a"
-  dependencies:
-    "@thi.ng/errors" "^0.1.11"
-
-"@thi.ng/atom@^1.5.6":
-  version "1.5.6"
-  resolved "https://registry.yarnpkg.com/@thi.ng/atom/-/atom-1.5.6.tgz#581ab03d09a55cfb0b8cafc0f7fc440fa84b13b1"
-  dependencies:
-    "@thi.ng/api" "^4.2.3"
-    "@thi.ng/checks" "^1.5.13"
-    "@thi.ng/equiv" "^0.1.13"
-    "@thi.ng/errors" "^0.1.11"
-    "@thi.ng/paths" "^1.6.5"
-
-"@thi.ng/checks@^1.5.13":
-  version "1.5.13"
-  resolved "https://registry.yarnpkg.com/@thi.ng/checks/-/checks-1.5.13.tgz#1f066907d48b8c52a80ab6528698b251a65a70ab"
-
-"@thi.ng/equiv@^0.1.13":
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/@thi.ng/equiv/-/equiv-0.1.13.tgz#89e16d2dcbdd0600878dfb5c7bf36f184143a0bb"
-
-"@thi.ng/errors@^0.1.11":
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/@thi.ng/errors/-/errors-0.1.11.tgz#f4f1177a1d44f549d76f5e4a1126d6cf7b89f426"
-
-"@thi.ng/paths@^1.6.5":
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/@thi.ng/paths/-/paths-1.6.5.tgz#3a628e40c56761759ef537400410b8f8b6818b47"
-  dependencies:
-    "@thi.ng/checks" "^1.5.13"
-    "@thi.ng/errors" "^0.1.11"
-
 "@types/node@*":
   version "10.12.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.0.tgz#ea6dcbddbc5b584c83f06c60e82736d8fbb0c235"
@@ -3763,7 +3728,7 @@ eslint-visitor-keys@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#3f3180fb2e291017716acb4c9d6d5b5c34a6a81d"
 
-eslint@^5.4.0, eslint@^5.9.0:
+eslint@^5.8.0:
   version "5.9.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-5.9.0.tgz#b234b6d15ef84b5849c6de2af43195a2d59d408e"
   dependencies:
@@ -3805,16 +3770,6 @@ eslint@^5.4.0, eslint@^5.9.0:
     strip-json-comments "^2.0.1"
     table "^5.0.2"
     text-table "^0.2.0"
-
-eslint_d@^7.1.1:
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/eslint_d/-/eslint_d-7.1.1.tgz#a80e538483863850f94828a4698b2ed328f17662"
-  dependencies:
-    eslint "^5.4.0"
-    nanolru "^1.0.0"
-    optionator "^0.8.1"
-    resolve "^1.8.1"
-    supports-color "^5.5.0"
 
 espree@^4.0.0:
   version "4.1.0"
@@ -6594,10 +6549,6 @@ nan@^2.9.2:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
 
-nanolru@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/nanolru/-/nanolru-1.0.0.tgz#0a5679cd4e4578c4ca3741e610b71c4c9b5afaf8"
-
 nanomatch@^1.2.9:
   version "1.2.13"
   resolved "https://registry.yarnpkg.com/nanomatch/-/nanomatch-1.2.13.tgz#b87a8aa4fc0de8fe6be88895b38983ff265bd119"
@@ -7847,13 +7798,9 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^1.14.2:
+prettier@1.14.3, prettier@^1.14.2:
   version "1.14.3"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.14.3.tgz#90238dd4c0684b7edce5f83b0fb7328e48bd0895"
-
-prettier@^1.15.2:
-  version "1.15.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.15.2.tgz#d31abe22afa4351efa14c7f8b94b58bb7452205e"
 
 pretty-bytes@^4.0.2:
   version "4.0.2"
