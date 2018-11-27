@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import './App.css'
 import { createInstance, getQuery, mount, query, transact } from './ql'
+import parsers from './parsers'
 
 const Todo = query([['title', {}], ['done', {}], ['id', {}]], props => {
   const { title } = props
@@ -37,12 +38,15 @@ let state = {
 }
 
 const remoteHandler = (query, callback) => {
+  console.log('remote')
   console.log(query)
 }
 
 mount({
+  state,
+  parsers,
+  remoteHandler,
+})({
   component: TodoList,
   element: document.getElementById('root'),
-  state,
-  remoteHandler,
 })

@@ -2,12 +2,9 @@ import { parseChildren, parseChildrenRemote } from './ql'
 import uuid from 'uuid'
 
 import createMultimethod from './multimethod'
-
-const first = ([f]) => f
+import { first } from './utils'
 
 export const read = createMultimethod(first)
-export const mutate = createMultimethod(first)
-export const remote = createMultimethod(first)
 
 read['title'] = (term, { id }, state) => {
   return state.todos[id] && state.todos[id].title
@@ -33,6 +30,8 @@ read['todos'] = (term, env, state) => {
   }
 }
 
+export const mutate = createMultimethod(first)
+
 mutate['todo/delete'] = (term, { id }, state) => {
   const newTodos = { ...state.todos }
   delete newTodos[id]
@@ -42,6 +41,8 @@ mutate['todo/delete'] = (term, { id }, state) => {
 mutate['todo/new'] = ([key, { title }], {}, state) => {
   state.todos = { ...state.todos, [uuid()]: { title, done: false } }
 }
+
+export const remote = createMultimethod(first)
 
 remote['todo/new'] = (queryTerm, state) => {
   return queryTerm
@@ -66,3 +67,9 @@ remote['id'] = (queryTerm, state) => {
 remote['todos'] = (queryTerm, state) => {
   return parseChildrenRemote(queryTerm)
 }
+
+export const sync = createMultimethod(first)
+
+sync['todos'] = (queryTerm, result, env, state) => {}
+
+export default { read, mutate, remote, sync }

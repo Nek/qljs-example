@@ -1,13 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { first, zip } from './utils'
 
-import { read, mutate, remote } from './parsers'
-
-const zip = (a1, a2) => a1.map((x, i) => [x, a2[i]])
-const first = ([f]) => f
+let Component
+let element
+let state
+let remoteHandler
+let parsers
 
 const isMutationQuery = ([tag]) => {
-  return mutate[tag] ? true : false
+  return parsers.mutate[tag] ? true : false
 }
 
 const registry = new Map()
@@ -25,27 +27,34 @@ export function clearRegistry() {
   registry.clear()
 }
 
-const parseQueryTerm = (queryTerm, env) => {
-  const mutateFn = mutate[queryTerm[0]]
+const parseQueryTerm = (state, parsers, queryTerm, env) => {
+  const mutateFn = parsers.mutate && parsers.mutate[queryTerm[0]]
   if (mutateFn) {
     mutateFn(queryTerm, env, state)
   } else {
-    return read(queryTerm, env, state)
+    return parsers.read(queryTerm, env, state)
   }
 }
 
-const parseQuery = (query, env) => {
+const parseQuery = (state, parsers, query, env) => {
   if (env === undefined) {
-    return parseQuery(query, {})
+    console.log(query)
+    return parseQuery(state, parsers, query, {})
   }
+
   return query.map(queryTerm => {
-    return parseQueryTerm(queryTerm, env)
+    return parseQueryTerm(state, parsers, queryTerm, env)
   })
 }
 
-export function parseQueryIntoMap(query, env) {
+export function parseQueryIntoMap(
+  query,
+  env,
+  _state = state,
+  _parsers = parsers,
+) {
   const queryName = query.map(first)
-  const queryResult = parseQuery(query, env)
+  const queryResult = parseQuery(_state, _parsers, query, env)
   const atts = zip(queryName, queryResult).reduce(
     (res, [k, v]) => ({ ...res, [k]: v }),
     {},
@@ -60,8 +69,8 @@ export function parseQueryIntoMap(query, env) {
 
 function parseQueryRemote(query) {
   return query.reduce((acc, item) => {
-    if (remote[first(item)]) {
-      const v = remote(item, state)
+    if (parsers.remote[first(item)]) {
+      const v = parsers.remote(item, state)
       if (v) {
         return [...acc, v]
       } else {
@@ -79,8 +88,7 @@ export function parseChildrenRemote([dispatchKey, params, ...chi]) {
 }
 
 function parseQueryTermSync(queryTerm, result, env) {
-  const { sync } = { sync: {} }
-  const syncFun = sync[queryTerm[0]]
+  const syncFun = parsers.sync[queryTerm[0]]
   if (syncFun) {
     syncFun(queryTerm, result, env, state)
   } else {
@@ -88,7 +96,7 @@ function parseQueryTermSync(queryTerm, result, env) {
   }
 }
 
-let handler = console.log
+let handler
 
 function performRemoteQuery(query) {
   if (Array.isArray(query) && remoteHandler) {
@@ -128,16 +136,17 @@ export function makeRootQuery(env, query) {
   })
 }
 
-export function parseChildren(term, env) {
+export function parseChildren(term, env, _state = state, _parsers = parsers) {
+  console.log(term)
   const [, , ...query] = term
   const newEnv = { ...env, parentEnv: { ...env, queryKey: term[0] } }
-  return parseQueryIntoMap(query, newEnv)
+  return parseQueryIntoMap(query, newEnv, _state, _parsers)
 }
 
-export function transact(props, query) {
+export function transact(props, query, _state = state, _parsers = parsers) {
   const { env, query: componentQuery } = props
   const rootQuery = makeRootQuery(env, [...query, ...componentQuery])
-  parseQuery(rootQuery, env)
+  parseQuery(_state, _parsers, rootQuery, env)
   const q = parseQueryRemote(rootQuery)
   performRemoteQuery(q)
   refresh(false)
@@ -162,20 +171,28 @@ let refresh = isRemoteQuery => {
   ReactDOM.render(createInstance(Component, atts), element)
 }
 
-let Component
-let element
-let state
-let remoteHandler
+export function mount({ state: _st, parsers: _parsers, remoteHandler: _rh }) {
+  state = _st
+  parsers = _parsers
+  remoteHandler = _rh
+  return ({ component, element: _el }) => {
+    Component = component
+    element = _el
+    refresh(true)
+  }
+}
 
-export function mount({
+export function _mount({
   component,
   element: _el,
   state: _st,
   remoteHandler: _rh,
+  parsers: _parsers,
 }) {
   Component = component
   element = _el
   state = _st
   remoteHandler = _rh
+  parsers = _parsers
   refresh(true)
 }
