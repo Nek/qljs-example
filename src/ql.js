@@ -27,7 +27,7 @@ export function clearRegistry() {
   registry.clear()
 }
 
-const parseQueryTerm = (state, parsers, queryTerm, env) => {
+const parseQueryTerm = (queryTerm, env) => {
   const mutateFn = parsers.mutate && parsers.mutate[queryTerm[0]]
   if (mutateFn) {
     mutateFn(queryTerm, env, state)
@@ -36,14 +36,14 @@ const parseQueryTerm = (state, parsers, queryTerm, env) => {
   }
 }
 
-const parseQuery = (state, parsers, query, env) => {
+const parseQuery = (query, env) => {
   if (env === undefined) {
     console.log(query)
-    return parseQuery(state, parsers, query, {})
+    return parseQuery(query, {})
   }
 
   return query.map(queryTerm => {
-    return parseQueryTerm(state, parsers, queryTerm, env)
+    return parseQueryTerm(queryTerm, env)
   })
 }
 
@@ -54,7 +54,7 @@ export function parseQueryIntoMap(
   _parsers = parsers,
 ) {
   const queryName = query.map(first)
-  const queryResult = parseQuery(_state, _parsers, query, env)
+  const queryResult = parseQuery(query, env)
   const atts = zip(queryName, queryResult).reduce(
     (res, [k, v]) => ({ ...res, [k]: v }),
     {},
@@ -146,7 +146,7 @@ export function parseChildren(term, env, _state = state, _parsers = parsers) {
 export function transact(props, query, _state = state, _parsers = parsers) {
   const { env, query: componentQuery } = props
   const rootQuery = makeRootQuery(env, [...query, ...componentQuery])
-  parseQuery(_state, _parsers, rootQuery, env)
+  parseQuery(rootQuery, env)
   const q = parseQueryRemote(rootQuery)
   performRemoteQuery(q)
   refresh(false)
