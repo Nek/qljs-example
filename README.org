@@ -1,8 +1,8 @@
-#Goal
+*Goal
 Non-verbatim clone of qlkit ClojureScript library.
 [https://github.com/forward-blockchain/qlkit]
 
-#Todo
+*Todo
 - missing tests
 - remote parser
 - sync parser with demo server
