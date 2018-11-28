@@ -1,5 +1,5 @@
 {
-  "name": "dog-breeds",
+  "name": "qljs-example",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -39,10 +39,10 @@
     "postcss-loader": "3.0.0",
     "postcss-preset-env": "6.0.6",
     "postcss-safe-parser": "4.0.1",
-    "react": "^16.7.0-alpha.0",
+    "react": "^16.6.3",
     "react-app-polyfill": "0.1.4-next.c662dfb0",
     "react-dev-utils": "6.0.6-next.c662dfb0",
-    "react-dom": "^16.7.0-alpha.0",
+    "react-dom": "^16.6.3",
     "resolve": "1.8.1",
     "sass-loader": "7.1.0",
     "style-loader": "0.23.0",

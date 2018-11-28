@@ -1,4 +1,4 @@
-import { parseChildren, parseChildrenRemote } from './ql'
+import { parseChildren, parseChildrenRemote } from 'qljs'
 import uuid from 'uuid'
 
 import createMultimethod from './multimethod'
