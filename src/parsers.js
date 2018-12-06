@@ -1,48 +1,61 @@
-import { parseChildren, parseChildrenRemote } from 'qljs'
+import { parseChildren, parseChildrenRemote, multimethod } from 'qljs'
 import uuid from 'uuid'
 
-import createMultimethod from './multimethod'
 import { first } from './utils'
 
-export const read = createMultimethod(first)
+export const read = multimethod(first)
 
-read['title'] = (term, { id }, state) => {
-  return state.todos[id] && state.todos[id].title
-}
-
-read['done'] = (term, { id }, state) => {
-  return state.todos[id] && state.todos[id].done
-}
-
-read['id'] = (term, { id }, state) => {
-  return state.todos[id] && id
+read['title'] = (term, { areaId, todoId: id }, state) => {
+  console.log(areaId, id)
+  const title =
+    state.areas[areaId] &&
+    state.areas[areaId].todos[id] &&
+    state.areas[areaId].todos[id].title
+  console.log(title)
+  return title
 }
 
 read['todos'] = (term, env, state) => {
-  const [, { id }] = term
-  if (id) {
-    return parseChildren(term, { ...env, id })
+  const { areaId } = env
+  const [, { todoId }] = term
+  if (todoId) {
+    return parseChildren(term, { ...env, todoId })
   } else {
-    const res = Object.keys(state.todos).map(id =>
-      parseChildren(term, { ...env, id }),
+    const res = Object.keys(state.areas[areaId].todos).map(todoId =>
+      parseChildren(term, { ...env, todoId }),
     )
     return res
   }
 }
 
-export const mutate = createMultimethod(first)
+read['areas'] = (term, env, state) => {
+  const [, { areaId }] = term
+  if (areaId) {
+    return parseChildren(term, { ...env, areaId })
+  } else {
+    const res = Object.keys(state.areas).map(areaId =>
+      parseChildren(term, { ...env, areaId }),
+    )
+    return res
+  }
+}
 
-mutate['todo/delete'] = (term, { id }, state) => {
-  const newTodos = { ...state.todos }
+export const mutate = multimethod(first)
+
+mutate['todo/delete'] = (term, { areaId, todoId: id }, state) => {
+  const newTodos = { ...state.areas[areaId].todos }
   delete newTodos[id]
-  state.todos = newTodos
+  state.areas[areaId].todos = newTodos
 }
 
-mutate['todo/new'] = ([key, { title }], {}, state) => {
-  state.todos = { ...state.todos, [uuid()]: { title, done: false } }
+mutate['todo/new'] = ([key, { title }], env, state) => {
+  console.log('!!!', env)
+  state.areas[env.areaId] = {
+    todos: { ...state.areas[env.areaId].todos, [uuid()]: { title } },
+  }
 }
 
-export const remote = createMultimethod(first)
+export const remote = multimethod(first)
 
 remote['todo/new'] = (queryTerm, state) => {
   return queryTerm
@@ -53,22 +66,15 @@ remote['todo/delete'] = (queryTerm, state) => {
 }
 
 remote['title'] = (queryTerm, state) => {
+  console.log(queryTerm, state)
   return queryTerm
 }
 
-remote['done'] = (queryTerm, state) => {
-  return queryTerm
-}
+// remote['todos'] = (queryTerm, state) => {
+//   return parseChildrenRemote(queryTerm)
+// }
 
-remote['id'] = (queryTerm, state) => {
-  return queryTerm
-}
-
-remote['todos'] = (queryTerm, state) => {
-  return parseChildrenRemote(queryTerm)
-}
-
-export const sync = createMultimethod(first)
+export const sync = multimethod(first)
 
 sync['todos'] = (queryTerm, result, env, state) => {}
 

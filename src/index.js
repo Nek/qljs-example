@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { createInstance, getQuery, mount, query, transact } from 'qljs'
 import parsers from './parsers'
 
-const Todo = query([['title', {}], ['done', {}], ['id', {}]], props => {
+const Todo = query([['title']], props => {
   const { title } = props
+  console.log('title', title)
   return (
     <li>
       {title}
@@ -12,8 +13,13 @@ const Todo = query([['title', {}], ['done', {}], ['id', {}]], props => {
   )
 })
 
+const Area = query([['todos', {}, ...getQuery(Todo)]], props => {
+  console.log('todos', props.todos)
+  return <ul>{props.todos.map(todo => createInstance(Todo, todo))}</ul>
+})
+
 const TodoList = query(
-  [['todos', {}, ...getQuery(Todo)]],
+  [['areas', {}, ...getQuery(Area)]],
   class extends React.Component {
     constructor(props) {
       super(props)
@@ -24,6 +30,7 @@ const TodoList = query(
     render() {
       return (
         <div>
+          <label>Title</label>
           <input
             onChange={e => this.setState({ title: e.target.value })}
             value={this.state.title}
@@ -35,7 +42,7 @@ const TodoList = query(
             }}>
             Add
           </button>
-          <ul>{this.props.todos.map(todo => createInstance(Todo, todo))}</ul>
+          <ul>{this.props.areas.map(area => createInstance(Area, area))}</ul>
         </div>
       )
     }
@@ -43,9 +50,13 @@ const TodoList = query(
 )
 
 let state = {
-  todos: {
-    0: { title: 'Buy milk', done: false },
-    1: { title: 'Do dishes', done: true },
+  areas: {
+    0: {
+      todos: {
+        0: { title: 'Buy milk' },
+        1: { title: 'Do dishes' },
+      },
+    },
   },
 }
 
