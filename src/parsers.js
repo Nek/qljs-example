@@ -1,17 +1,15 @@
-import { parseChildren, parseChildrenRemote, multimethod } from 'qljs'
+import qljs, { parseChildren, parseChildrenRemote, multimethod } from 'qljs'
 import uuid from 'uuid'
 
-import { first } from './utils'
+const first = a => a[0]
 
 export const read = multimethod(first)
 
 read['title'] = (term, { areaId, todoId: id }, state) => {
-  console.log(areaId, id)
   const title =
     state.areas[areaId] &&
     state.areas[areaId].todos[id] &&
     state.areas[areaId].todos[id].title
-  console.log(title)
   return title
 }
 
@@ -21,9 +19,11 @@ read['todos'] = (term, env, state) => {
   if (todoId) {
     return parseChildren(term, { ...env, todoId })
   } else {
-    const res = Object.keys(state.areas[areaId].todos).map(todoId =>
-      parseChildren(term, { ...env, todoId }),
-    )
+    const res = state.areas[areaId]
+      ? Object.keys(state.areas[areaId].todos).map(todoId =>
+          parseChildren(term, { ...env, todoId }),
+        )
+      : []
     return res
   }
 }
@@ -48,10 +48,15 @@ mutate['todo/delete'] = (term, { areaId, todoId: id }, state) => {
   state.areas[areaId].todos = newTodos
 }
 
-mutate['todo/new'] = ([key, { title }], env, state) => {
-  console.log('!!!', env)
-  state.areas[env.areaId] = {
-    todos: { ...state.areas[env.areaId].todos, [uuid()]: { title } },
+mutate['area/delete'] = (term, { areaId }, state) => {
+  const newAreas = { ...state.areas }
+  delete newAreas[areaId]
+  state.areas = newAreas
+}
+
+mutate['todo/new'] = ([key, { area: areaId, title }], env, state) => {
+  state.areas[areaId] = {
+    todos: { ...state.areas[areaId].todos, [uuid()]: { title } },
   }
 }
 
@@ -62,17 +67,20 @@ remote['todo/new'] = (queryTerm, state) => {
 }
 
 remote['todo/delete'] = (queryTerm, state) => {
-  return queryTerm
+  return parseChildrenRemote(queryTerm)
 }
 
 remote['title'] = (queryTerm, state) => {
-  console.log(queryTerm, state)
   return queryTerm
 }
 
-// remote['todos'] = (queryTerm, state) => {
-//   return parseChildrenRemote(queryTerm)
-// }
+remote['todos'] = (queryTerm, state) => {
+  return parseChildrenRemote(queryTerm)
+}
+
+remote['areas'] = (queryTerm, state) => {
+  return queryTerm
+}
 
 export const sync = multimethod(first)
 

@@ -4,7 +4,6 @@ import parsers from './parsers'
 
 const Todo = query([['title']], props => {
   const { title } = props
-  console.log('title', title)
   return (
     <li>
       {title}
@@ -14,8 +13,12 @@ const Todo = query([['title']], props => {
 })
 
 const Area = query([['todos', {}, ...getQuery(Todo)]], props => {
-  console.log('todos', props.todos)
-  return <ul>{props.todos.map(todo => createInstance(Todo, todo))}</ul>
+  return (
+    <ul>
+      {props.todos.map(todo => createInstance(Todo, todo))}
+      <button onClick={() => transact(props, [['area/delete']])}>x</button>
+    </ul>
+  )
 })
 
 const TodoList = query(
@@ -37,7 +40,9 @@ const TodoList = query(
           />
           <button
             onClick={() => {
-              transact(this.props, [['todo/new', { title: this.state.title }]])
+              transact(this.props, [
+                ['todo/new', { area: 0, title: this.state.title }],
+              ])
               this.setState({ title: '' })
             }}>
             Add
@@ -60,10 +65,7 @@ let state = {
   },
 }
 
-const remoteHandler = (query, callback) => {
-  console.log('remote')
-  console.log(query)
-}
+const remoteHandler = (query, callback) => {}
 
 mount({
   state,
