@@ -1,4 +1,4 @@
-import qljs, { parseChildren, parseChildrenRemote, multimethod } from 'qljs'
+import { parseChildren, parseChildrenRemote, multimethod } from 'qljs'
 import uuid from 'uuid'
 
 const first = a => a[0]
@@ -10,6 +10,11 @@ read['title'] = (term, { areaId, todoId: id }, state) => {
     state.areas[areaId] &&
     state.areas[areaId].todos[id] &&
     state.areas[areaId].todos[id].title
+  return title
+}
+
+read['todoId'] = (term, { areaId, todoId: id }, state) => {
+  const title = state.areas[areaId] && state.areas[areaId].todos[id] && id
   return title
 }
 
@@ -40,24 +45,34 @@ read['areas'] = (term, env, state) => {
   }
 }
 
+read['areaId'] = (term, { areaId }, state) => {
+  return state.areas[areaId] && areaId
+}
+
 export const mutate = multimethod(first)
 
 mutate['todo/delete'] = (term, { areaId, todoId: id }, state) => {
   const newTodos = { ...state.areas[areaId].todos }
   delete newTodos[id]
   state.areas[areaId].todos = newTodos
+  return state.areas
 }
 
 mutate['area/delete'] = (term, { areaId }, state) => {
   const newAreas = { ...state.areas }
   delete newAreas[areaId]
   state.areas = newAreas
+  return state.areas
 }
 
 mutate['todo/new'] = ([key, { area: areaId, title }], env, state) => {
   state.areas[areaId] = {
-    todos: { ...state.areas[areaId].todos, [uuid()]: { title } },
+    todos: {
+      ...(state.areas[areaId] ? state.areas[areaId].todos : {}),
+      [uuid()]: { title },
+    },
   }
+  return state.areas
 }
 
 export const remote = multimethod(first)
@@ -67,7 +82,7 @@ remote['todo/new'] = (queryTerm, state) => {
 }
 
 remote['todo/delete'] = (queryTerm, state) => {
-  return parseChildrenRemote(queryTerm)
+  return queryTerm
 }
 
 remote['title'] = (queryTerm, state) => {

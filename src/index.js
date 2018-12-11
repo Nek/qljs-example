@@ -2,20 +2,21 @@ import React from 'react'
 import { createInstance, getQuery, mount, query, transact } from 'qljs'
 import parsers from './parsers'
 
-const Todo = query([['title']], props => {
-  const { title } = props
+const Todo = query([['title'], ['todoId']], props => {
+  const { title, todoId } = props
   return (
-    <li>
+    <li key={todoId}>
       {title}
       {<button onClick={() => transact(props, [['todo/delete']])}>x</button>}
     </li>
   )
 })
 
-const Area = query([['todos', {}, ...getQuery(Todo)]], props => {
+const Area = query([['todos', {}, ...getQuery(Todo)], ['areaId']], props => {
+  console.log('areaId', props.areaId)
   return (
-    <ul>
-      {props.todos.map(todo => createInstance(Todo, todo))}
+    <ul key={props.areaId}>
+      {props.todos.map(todo => createInstance(Todo, todo, todo.todoId))}
       <button onClick={() => transact(props, [['area/delete']])}>x</button>
     </ul>
   )
@@ -47,7 +48,11 @@ const TodoList = query(
             }}>
             Add
           </button>
-          <ul>{this.props.areas.map(area => createInstance(Area, area))}</ul>
+          <ul>
+            {this.props.areas.map(area =>
+              createInstance(Area, area, area.areaId),
+            )}
+          </ul>
         </div>
       )
     }
