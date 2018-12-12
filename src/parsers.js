@@ -5,17 +5,14 @@ const first = a => a[0]
 
 export const read = multimethod(first)
 
-read['title'] = (term, { areaId, todoId: id }, state) => {
-  const title =
-    state.areas[areaId] &&
-    state.areas[areaId].todos[id] &&
-    state.areas[areaId].todos[id].title
-  return title
+read['text'] = (term, { todoId }, state) => {
+  const text = state.todos[todoId] && state.todos[todoId].text
+  return text
 }
 
 read['todoId'] = (term, { areaId, todoId: id }, state) => {
-  const title = state.areas[areaId] && state.areas[areaId].todos[id] && id
-  return title
+  const text = state.todos[id] && id
+  return text
 }
 
 read['todos'] = (term, env, state) => {
@@ -24,11 +21,9 @@ read['todos'] = (term, env, state) => {
   if (todoId) {
     return parseChildren(term, { ...env, todoId })
   } else {
-    const res = state.areas[areaId]
-      ? Object.keys(state.areas[areaId].todos).map(todoId =>
-          parseChildren(term, { ...env, todoId }),
-        )
-      : []
+    const res = Object.entries(state.todos)
+      .filter(([key, todo]) => todo.area !== areaId)
+      .map(([key, todo]) => parseChildren(term, { ...env, todoId: key }))
     return res
   }
 }
@@ -38,9 +33,10 @@ read['areas'] = (term, env, state) => {
   if (areaId) {
     return parseChildren(term, { ...env, areaId })
   } else {
-    const res = Object.keys(state.areas).map(areaId =>
-      parseChildren(term, { ...env, areaId }),
-    )
+    const res = Object.keys(state.areas).map(areaId => {
+      const res = parseChildren(term, { ...env, areaId })
+      return res
+    })
     return res
   }
 }
@@ -51,27 +47,34 @@ read['areaId'] = (term, { areaId }, state) => {
 
 export const mutate = multimethod(first)
 
-mutate['todo/delete'] = (term, { areaId, todoId: id }, state) => {
-  const newTodos = { ...state.areas[areaId].todos }
-  delete newTodos[id]
-  state.areas[areaId].todos = newTodos
-  return state.areas
+mutate['todo/delete'] = (term, { areaId, todoId }, state) => {
+  const newTodos = { ...state.todos }
+  delete newTodos[todoId]
+  state.todos = newTodos
+  console.log(state.areas[areaId].todos)
+  const newAreaTodos = state.areas[areaId].todos.filter(id => id === todoId)
+  state.areas[areaId].todos = newAreaTodos
+  return state
 }
 
 mutate['area/delete'] = (term, { areaId }, state) => {
-  const newAreas = { ...state.areas }
-  delete newAreas[areaId]
-  state.areas = newAreas
+  delete state.areas[areaId]
+  state.todos = Object.entries(state.todos)
+    .filter(([todoId, { area }]) => area === areaId)
+    .reduce((res, [todoId, todo]) => ({ ...res, [todoId]: todo }), {})
   return state.areas
 }
 
 mutate['todo/new'] = ([key, { area: areaId, title }], env, state) => {
-  state.areas[areaId] = {
-    todos: {
-      ...(state.areas[areaId] ? state.areas[areaId].todos : {}),
-      [uuid()]: { title },
-    },
+  const todoId = uuid()
+  state.todos[todoId] = { text: title, area: areaId }
+  if (!state.areas[areaId]) {
+    state.areas[areaId] = {
+      todos: [],
+      title: 'Chores',
+    }
   }
+  state.areas[areaId].todos = [...state.areas[areaId].todos, todoId]
   return state.areas
 }
 

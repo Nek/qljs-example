@@ -2,22 +2,34 @@ import React from 'react'
 import { createInstance, getQuery, mount, query, transact } from 'qljs'
 import parsers from './parsers'
 
-const Todo = query([['title'], ['todoId']], props => {
-  const { title, todoId } = props
+const Todo = query([['text'], ['todoId']], props => {
+  const { text } = props
+  console.log('!', props)
   return (
-    <li key={todoId}>
-      {title}
-      {<button onClick={() => transact(props, [['todo/delete']])}>x</button>}
+    <li>
+      {text}
+      {
+        <button
+          onClick={() => {
+            transact(props, [['todo/delete']])
+          }}>
+          x
+        </button>
+      }
     </li>
   )
 })
 
-const Area = query([['todos', {}, ...getQuery(Todo)], ['areaId']], props => {
-  console.log('areaId', props.areaId)
+const Area = query([['todos', {}, ...getQuery(Todo)]], props => {
   return (
-    <ul key={props.areaId}>
+    <ul>
       {props.todos.map(todo => createInstance(Todo, todo, todo.todoId))}
-      <button onClick={() => transact(props, [['area/delete']])}>x</button>
+      <button
+        onClick={() => {
+          transact(props, [['area/delete']])
+        }}>
+        x
+      </button>
     </ul>
   )
 })
@@ -49,9 +61,9 @@ const TodoList = query(
             Add
           </button>
           <ul>
-            {this.props.areas.map(area =>
-              createInstance(Area, area, area.areaId),
-            )}
+            {this.props.areas.map(area => {
+              return createInstance(Area, area, area.areaId)
+            })}
           </ul>
         </div>
       )
@@ -60,17 +72,21 @@ const TodoList = query(
 )
 
 let state = {
+  todos: {
+    0: { text: 'Buy milk', area: 0 },
+    1: { text: 'Do dishes', area: 0 },
+  },
   areas: {
     0: {
-      todos: {
-        0: { title: 'Buy milk' },
-        1: { title: 'Do dishes' },
-      },
+      title: 'Chores',
+      todos: [0, 1],
     },
   },
 }
 
-const remoteHandler = (query, callback) => {}
+const remoteHandler = (query, callback) => {
+  console.log(query)
+}
 
 mount({
   state,
