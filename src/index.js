@@ -4,7 +4,6 @@ import parsers from './parsers'
 
 const Todo = query([['text'], ['todoId']], props => {
   const { text } = props
-  console.log('!', props)
   return (
     <li>
       {text}
@@ -20,16 +19,11 @@ const Todo = query([['text'], ['todoId']], props => {
   )
 })
 
-const Area = query([['todos', {}, ...getQuery(Todo)]], props => {
+const Area = query([['todos', {}, ...getQuery(Todo)], ['title']], props => {
   return (
     <ul>
+      <label>{props.title}</label>
       {props.todos.map(todo => createInstance(Todo, todo, todo.todoId))}
-      <button
-        onClick={() => {
-          transact(props, [['area/delete']])
-        }}>
-        x
-      </button>
     </ul>
   )
 })
@@ -74,12 +68,14 @@ const TodoList = query(
 let state = {
   todos: {
     0: { text: 'Buy milk', area: 0 },
-    1: { text: 'Do dishes', area: 0 },
+    1: { text: 'Do dishes', area: 1 },
   },
   areas: {
     0: {
       title: 'Chores',
-      todos: [0, 1],
+    },
+    1: {
+      title: 'Today',
     },
   },
 }
