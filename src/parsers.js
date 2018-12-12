@@ -71,16 +71,10 @@ mutate['area/delete'] = (term, { areaId }, state) => {
   return state.areas
 }
 
-mutate['todo/new'] = ([key, { area: areaId, title }], env, state) => {
+mutate['todo/new'] = ([key, { area, text }], env, state) => {
   const todoId = uuid()
-  state.todos[todoId] = { text: title, area: areaId }
-  if (!state.areas[areaId]) {
-    state.areas[areaId] = {
-      todos: [],
-      title: 'Chores',
-    }
-  }
-  return state.areas
+  state.todos[todoId] = { text, area }
+  return state.todos
 }
 
 export const remote = multimethod(first)

@@ -1,0 +1,7 @@
+ul {
+  padding: 0;
+}
+
+ul > label {
+  font-weight: bold;
+}

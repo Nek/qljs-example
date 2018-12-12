@@ -1,6 +1,7 @@
 import React from 'react'
 import { createInstance, getQuery, mount, query, transact } from 'qljs'
 import parsers from './parsers'
+import './App.css'
 
 const Todo = query([['text'], ['todoId']], props => {
   const { text } = props
@@ -28,29 +29,44 @@ const Area = query([['todos', {}, ...getQuery(Todo)], ['title']], props => {
   )
 })
 
+const AreaOption = query([['areaId'], ['title']], props => {
+  console.log('areaId', props.areaId)
+  return <option value={props.areaId}>{props.title}</option>
+})
+
 const TodoList = query(
-  [['areas', {}, ...getQuery(Area)]],
+  [['areas', {}, ...getQuery(Area), ...getQuery(AreaOption)]],
   class extends React.Component {
     constructor(props) {
       super(props)
       this.state = {
-        title: '',
+        text: '',
+        area: 0,
       }
     }
     render() {
       return (
         <div>
-          <label>Title</label>
           <input
-            onChange={e => this.setState({ title: e.target.value })}
-            value={this.state.title}
+            onChange={e => this.setState({ text: e.target.value })}
+            value={this.state.text}
           />
+          <select
+            onChange={e => {
+              console.log(e.currentTarget)
+              return this.setState({ area: e.target.value })
+            }}>
+            {this.props.areas.map(area => {
+              return createInstance(AreaOption, area, area.areaId)
+            })}
+          </select>
           <button
             onClick={() => {
+              console.log(this.state.area)
               transact(this.props, [
-                ['todo/new', { area: 0, title: this.state.title }],
+                ['todo/new', { area: this.state.area, text: this.state.text }],
               ])
-              this.setState({ title: '' })
+              this.setState({ text: '' })
             }}>
             Add
           </button>
