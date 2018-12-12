@@ -1,5 +1,5 @@
 import React from 'react'
-import { createInstance, getQuery, mount, query, transact } from 'qljs'
+import { createInstance, mount, query, transact } from 'qljs'
 import parsers from './parsers'
 import './App.css'
 
@@ -20,7 +20,7 @@ const Todo = query([['text'], ['todoId']], props => {
   )
 })
 
-const Area = query([['todos', {}, ...getQuery(Todo)], ['title']], props => {
+const Area = query([['todos', {}, Todo], ['title']], props => {
   return (
     <ul>
       <label>{props.title}</label>
@@ -30,12 +30,11 @@ const Area = query([['todos', {}, ...getQuery(Todo)], ['title']], props => {
 })
 
 const AreaOption = query([['areaId'], ['title']], props => {
-  console.log('areaId', props.areaId)
   return <option value={props.areaId}>{props.title}</option>
 })
 
 const TodoList = query(
-  [['areas', {}, ...getQuery(Area), ...getQuery(AreaOption)]],
+  [['areas', {}, Area, AreaOption]],
   class extends React.Component {
     constructor(props) {
       super(props)
