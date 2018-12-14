@@ -90,8 +90,31 @@ let state = {
   areas: {},
 }
 
-const remoteHandler = ([[term, params]], callback) => {
-  switch (term) {
+const firstChild = term => {
+  if (term) {
+    const [, , fc = []] = term
+    return fc
+  }
+  return []
+}
+
+function inverseTerm(term) {
+  const inverseInner = (term, res) => {
+    if (term === undefined) {
+      return res
+    } else {
+      res.push([term[0], term[1]])
+      return inverseInner(term[2], res)
+    }
+  }
+  return inverseInner(term, []).reverse()
+}
+
+const remoteHandler = (query, callback) => {
+  const [term] = query
+  const [tag, params, child] = inverseTerm(term)[0]
+  console.log(tag)
+  switch (tag) {
     case 'app/init':
       fetch('http://localhost:3000/todos')
         .then(response => response.json())
@@ -112,6 +135,10 @@ const remoteHandler = ([[term, params]], callback) => {
         .then(result => {
           callback([result])
         })
+      break
+    case 'todo/delete':
+      const { todoId } = params
+      fetch(`http://localhost:3000/${todoId}`, { method: 'DELETE' })
       break
     default:
       break
