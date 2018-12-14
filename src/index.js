@@ -1,5 +1,6 @@
 import React from 'react'
 import { createInstance, mount, query, transact } from 'qljs'
+import uuid from 'uuid'
 import parsers from './parsers'
 import './App.css'
 
@@ -20,7 +21,7 @@ const Todo = query([['text'], ['todoId']], props => {
   )
 })
 
-const Area = query([['todos', {}, Todo], ['title']], props => {
+const Area = query([['todos', Todo], ['title']], props => {
   return (
     <ul>
       <label>{props.title}</label>
@@ -36,6 +37,9 @@ const AreaOption = query([['areaId'], ['title']], props => {
 const TodoList = query(
   [['areas', {}, Area, AreaOption]],
   class extends React.Component {
+    componentDidMount() {
+      transact(this.props, [['app/init']])
+    }
     constructor(props) {
       super(props)
       this.state = {
@@ -52,7 +56,6 @@ const TodoList = query(
           />
           <select
             onChange={e => {
-              console.log(e.currentTarget)
               return this.setState({ area: e.target.value })
             }}>
             {this.props.areas.map(area => {
@@ -61,9 +64,11 @@ const TodoList = query(
           </select>
           <button
             onClick={() => {
-              console.log(this.state.area)
               transact(this.props, [
-                ['todo/new', { area: this.state.area, text: this.state.text }],
+                [
+                  'todo/new',
+                  { area: this.state.area, text: this.state.text, id: uuid() },
+                ],
               ])
               this.setState({ text: '' })
             }}>
@@ -81,22 +86,36 @@ const TodoList = query(
 )
 
 let state = {
-  todos: {
-    0: { text: 'Buy milk', area: 0 },
-    1: { text: 'Do dishes', area: 1 },
-  },
-  areas: {
-    0: {
-      title: 'Chores',
-    },
-    1: {
-      title: 'Today',
-    },
-  },
+  todos: {},
+  areas: {},
 }
 
-const remoteHandler = (query, callback) => {
-  console.log(query)
+const remoteHandler = ([[term, params]], callback) => {
+  switch (term) {
+    case 'app/init':
+      fetch('http://localhost:3000/todos')
+        .then(response => response.json())
+        .then(result => {
+          callback([result])
+        })
+      break
+    case 'todo/new':
+      const { text, area } = params
+      fetch('http://localhost:3000/todos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: JSON.stringify({ text, area }),
+      })
+        .then(response => response.json())
+        .then(result => {
+          callback([result])
+        })
+      break
+    default:
+      break
+  }
 }
 
 mount({

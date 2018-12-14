@@ -1,5 +1,4 @@
 import { parseChildren, parseChildrenRemote, multimethod } from 'qljs'
-import uuid from 'uuid'
 
 const first = a => a[0]
 
@@ -56,6 +55,10 @@ read['areaId'] = (term, { areaId }, state) => {
 
 export const mutate = multimethod(first)
 
+mutate['app/init'] = (term, env, state) => {
+  return state
+}
+
 mutate['todo/delete'] = (term, { areaId, todoId }, state) => {
   const newTodos = { ...state.todos }
   delete newTodos[todoId]
@@ -71,8 +74,7 @@ mutate['area/delete'] = (term, { areaId }, state) => {
   return state.areas
 }
 
-mutate['todo/new'] = ([key, { area, text }], env, state) => {
-  const todoId = uuid()
+mutate['todo/new'] = ([key, { area, text, todoId }], env, state) => {
   state.todos[todoId] = { text, area }
   return state.todos
 }
@@ -96,11 +98,28 @@ remote['todos'] = (queryTerm, state) => {
 }
 
 remote['areas'] = (queryTerm, state) => {
+  return parseChildrenRemote(queryTerm)
+}
+
+remote['app/init'] = (queryTerm, state) => {
   return queryTerm
 }
 
 export const sync = multimethod(first)
 
-sync['todos'] = (queryTerm, result, env, state) => {}
+sync['areas'] = (queryTerm, result, env, state) => {}
+
+sync['todo/delete'] = (queryTerm, result, env, state) => {}
+
+sync['app/init'] = (term, result, env, state) => {
+  state.todos = result.todos
+  state.areas = result.areas
+}
+
+sync['todo/new'] = ([tag, { todoId }], { id }, env, state) => {
+  const todo = state.todos[todoId]
+  delete state.todos[todoId]
+  state.todos[id] = todo
+}
 
 export default { read, mutate, remote, sync }
