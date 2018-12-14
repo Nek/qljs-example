@@ -98,22 +98,23 @@ const firstChild = term => {
   return []
 }
 
-function inverseTerm(term) {
-  const inverseInner = (term, res) => {
+function compressTerm(term) {
+  const compressInner = (term, res) => {
     if (term === undefined) {
       return res
     } else {
-      res.push([term[0], term[1]])
-      return inverseInner(term[2], res)
+      res.tags.push(term[0])
+      res.params.push(term[1])
+      return compressInner(term[2], res)
     }
   }
-  return inverseInner(term, []).reverse()
+  const { tags, params } = compressInner(term, { tags: [], params: [] })
+  return [tags.reverse()[0], params.reduce((res, p) => ({ ...res, ...p }), {})]
 }
 
 const remoteHandler = (query, callback) => {
   const [term] = query
-  const [tag, params, child] = inverseTerm(term)[0]
-  console.log(tag)
+  const [tag, params] = compressTerm(term)
   switch (tag) {
     case 'app/init':
       fetch('http://localhost:3000/todos')
@@ -138,7 +139,7 @@ const remoteHandler = (query, callback) => {
       break
     case 'todo/delete':
       const { todoId } = params
-      fetch(`http://localhost:3000/${todoId}`, { method: 'DELETE' })
+      fetch(`http://localhost:3000/todos/${todoId}`, { method: 'DELETE' })
       break
     default:
       break
