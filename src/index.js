@@ -1,5 +1,5 @@
 import React from 'react'
-import { createInstance, mount, query, transact } from 'qljs'
+import { createInstance, mount, query, transact, multimethod } from 'qljs'
 import uuid from 'uuid'
 import parsers from './parsers'
 import './App.css'
@@ -112,38 +112,45 @@ function compressTerm(term) {
   return [tags.reverse()[0], params.reduce((res, p) => ({ ...res, ...p }), {})]
 }
 
+const handleByTag = multimethod(
+  (tag, params, callback) => {
+    return tag
+  },
+  () => {},
+)
+
+handleByTag['app/init'] = (tag, params, callback) => {
+  fetch('http://localhost:3000/todos')
+    .then(response => response.json())
+    .then(result => {
+      callback([result])
+    })
+}
+
+handleByTag['todo/new'] = (tag, params, callback) => {
+  const { text, area } = params
+  fetch('http://localhost:3000/todos', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    body: JSON.stringify({ text, area }),
+  })
+    .then(response => response.json())
+    .then(result => {
+      callback([result])
+    })
+}
+
+handleByTag['todo/delete'] = (tag, params, callback) => {
+  const { todoId } = params
+  fetch(`http://localhost:3000/todos/${todoId}`, { method: 'DELETE' })
+}
+
 const remoteHandler = (query, callback) => {
   const [term] = query
   const [tag, params] = compressTerm(term)
-  switch (tag) {
-    case 'app/init':
-      fetch('http://localhost:3000/todos')
-        .then(response => response.json())
-        .then(result => {
-          callback([result])
-        })
-      break
-    case 'todo/new':
-      const { text, area } = params
-      fetch('http://localhost:3000/todos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-        },
-        body: JSON.stringify({ text, area }),
-      })
-        .then(response => response.json())
-        .then(result => {
-          callback([result])
-        })
-      break
-    case 'todo/delete':
-      const { todoId } = params
-      fetch(`http://localhost:3000/todos/${todoId}`, { method: 'DELETE' })
-      break
-    default:
-      break
-  }
+  handleByTag(tag, params, callback)
 }
 
 mount({
