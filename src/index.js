@@ -21,6 +21,8 @@ const Todo = query([['text'], ['todoId']], props => {
   )
 })
 
+Todo.displayName = 'Todo'
+
 const Area = query([['todos', Todo], ['title']], props => {
   return (
     <ul>
@@ -30,9 +32,13 @@ const Area = query([['todos', Todo], ['title']], props => {
   )
 })
 
+Area.displayName = 'Area'
+
 const AreaOption = query([['areaId'], ['title']], props => {
   return <option value={props.areaId}>{props.title}</option>
 })
+
+AreaOption.displayName = 'AreaOption'
 
 const TodoList = query(
   [['areas', {}, Area, AreaOption]],
@@ -84,6 +90,8 @@ const TodoList = query(
     }
   },
 )
+
+TodoList.displayName = 'TodoList'
 
 let state = {
   todos: {},
