@@ -1,10 +1,10 @@
 import React from 'react'
+import './parsers'
 import { createInstance, mount, query, transact, multimethod } from 'qljs'
 import uuid from 'uuid'
-import parsers from './parsers'
 import './App.css'
 
-const Todo = query([['text'], ['todoId']], props => {
+const Todo = query([['text']], props => {
   const { text } = props
   return (
     <li>
@@ -124,6 +124,7 @@ const handleByTag = multimethod(
   (tag, params, callback) => {
     return tag
   },
+  'remote handler',
   () => {},
 )
 
@@ -163,7 +164,6 @@ const remoteHandler = (query, callback) => {
 
 mount({
   state,
-  parsers,
   remoteHandler,
 })({
   component: TodoList,

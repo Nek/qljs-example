@@ -1,8 +1,6 @@
-import { parseChildren, parseChildrenRemote, multimethod } from 'qljs'
+import { parseChildren, parseChildrenRemote, parsers } from 'qljs'
 
-const first = a => a[0]
-
-export const read = multimethod(first)
+let { read, mutate, remote, sync } = parsers
 
 read['text'] = (term, { todoId }, state) => {
   const text = state.todos[todoId] && state.todos[todoId].text
@@ -53,8 +51,6 @@ read['areaId'] = (term, { areaId }, state) => {
   return state.areas[areaId] && areaId
 }
 
-export const mutate = multimethod(first)
-
 mutate['app/init'] = (term, env, state) => {
   return state
 }
@@ -78,8 +74,6 @@ mutate['todo/new'] = ([key, { area, text, todoId }], env, state) => {
   state.todos[todoId] = { text, area }
   return state.todos
 }
-
-export const remote = multimethod(first)
 
 remote['todo/new'] = (queryTerm, state) => {
   return queryTerm
@@ -105,8 +99,6 @@ remote['app/init'] = (queryTerm, state) => {
   return queryTerm
 }
 
-export const sync = multimethod(first)
-
 sync['areas'] = (queryTerm, result, env, state) => {}
 
 sync['todo/delete'] = (queryTerm, result, env, state) => {}
@@ -121,5 +113,3 @@ sync['todo/new'] = ([tag, { todoId }], { id }, env, state) => {
   delete state.todos[todoId]
   state.todos[id] = todo
 }
-
-export default { read, mutate, remote, sync }
