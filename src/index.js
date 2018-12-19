@@ -125,11 +125,12 @@ const handleByTag = multimethod(
     return tag
   },
   'remote handler',
+  undefined,
   () => {},
 )
 
 handleByTag['app/init'] = (tag, params, callback) => {
-  fetch('http://localhost:3000/todos')
+  fetch('/todos')
     .then(response => response.json())
     .then(result => {
       callback([result])
@@ -138,7 +139,7 @@ handleByTag['app/init'] = (tag, params, callback) => {
 
 handleByTag['todo/new'] = (tag, params, callback) => {
   const { text, area } = params
-  fetch('http://localhost:3000/todos', {
+  fetch('/todos', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
@@ -153,7 +154,7 @@ handleByTag['todo/new'] = (tag, params, callback) => {
 
 handleByTag['todo/delete'] = (tag, params, callback) => {
   const { todoId } = params
-  fetch(`http://localhost:3000/todos/${todoId}`, { method: 'DELETE' })
+  fetch(`/todos/${todoId}`, { method: 'DELETE' })
 }
 
 const remoteHandler = (query, callback) => {
