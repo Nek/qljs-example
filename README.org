@@ -1,1 +1,6 @@
-QLJS example app.
+# QLJS example client
+
+An example application for QLJS library. You need a server-side app to run it.
+
+Server-side app:
+https://github.com/Nek/qljs-example-server
