@@ -1,13 +1,13 @@
 # QLJS example client
 
-An example application for QLJS library. You will need a server-side app to run it.
+An example application for QLJS library. You will need a server-side app to view it.
 
 Server-side app:
 https://github.com/Nek/qljs-example-server
 
 ## Prerequisites
 
-You will need node v10 and npm installed.
+You will need npm 6.0.0 or above installed.
 
 ## Running
 
