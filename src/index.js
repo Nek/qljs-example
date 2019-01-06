@@ -31,10 +31,10 @@ const Todo = query([['text'], ['todoId']], 'todoId')(props => {
 
 Todo.displayName = 'Todo'
 
-const Area = query([['todos', Todo], ['title']], 'areaId')(props => {
+const Area = query([['todos', Todo], ['areaTitle']], 'areaId')(props => {
   return (
     <ul>
-      <label key="label">{props.title}</label>
+      <label key="label">{props.areaTitle}</label>
       <PoseGroup>{props.todos.map(instance(Todo))}</PoseGroup>
     </ul>
   )
@@ -42,8 +42,8 @@ const Area = query([['todos', Todo], ['title']], 'areaId')(props => {
 
 Area.displayName = 'Area'
 
-const AreaOption = query([['areaId'], ['title']], 'areaId')(props => {
-  return <option value={props.areaId}>{props.title}</option>
+const AreaOption = query([['areaId'], ['areaTitle']], 'areaId')(props => {
+  return <option value={props.areaId}>{props.areaTitle}</option>
 })
 
 AreaOption.displayName = 'AreaOption'
@@ -174,6 +174,7 @@ handleByTag['todo/delete'] = (tag, params, callback) => {
 }
 
 const remoteHandler = query => {
+  console.log(query)
   const [term] = query
   const [tag, params] = compressTerm(term)
   return handleByTag(tag, params)

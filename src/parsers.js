@@ -45,7 +45,7 @@ read['areas'] = (term, env, state) => {
   }
 }
 
-read['title'] = (term, { areaId }, state) => {
+read['areaTitle'] = (term, { areaId }, state) => {
   return state.areas[areaId] && state.areas[areaId].title
 }
 
@@ -90,7 +90,7 @@ remote['todo/delete'] = (queryTerm, state) => {
   return queryTerm
 }
 
-remote['title'] = (queryTerm, state) => {
+remote['areaTitle'] = (queryTerm, state) => {
   return queryTerm
 }
 
