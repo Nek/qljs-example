@@ -13,7 +13,7 @@ You will need npm 6.0.0 or above installed.
 
 To start a web server for the application, run:
 
-    npm start
+    yarn start
 
 ## License
 
