@@ -1,13 +1,21 @@
 import React from 'react'
 import './parsers'
-import { createInstance, mount, query, transact, multimethod } from 'qljs'
+import { mount, query, transact, multimethod } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
+import posed, { PoseGroup } from 'react-pose'
 
-const Todo = query([['text']], props => {
-  const { text } = props
+const TodoLi = posed.li({
+  enter: { opacity: 1 },
+  exit: {
+    opacity: 0,
+  },
+})
+
+const Todo = query([['text'], ['todoId']], props => {
+  const { text, todoId } = props
   return (
-    <li>
+    <TodoLi {...props}>
       {text}
       {
         <button
@@ -17,17 +25,24 @@ const Todo = query([['text']], props => {
           x
         </button>
       }
-    </li>
+    </TodoLi>
   )
 })
 
 Todo.displayName = 'Todo'
 
+const instance = Component => atts => (
+  <Component
+    {...atts}
+    key={atts['env'][Component.displayName.toLowerCase() + 'Id']}
+  />
+)
+
 const Area = query([['todos', Todo], ['title']], props => {
   return (
     <ul>
-      <label>{props.title}</label>
-      {props.todos.map(todo => createInstance(Todo, todo, todo.todoId))}
+      <label key="label">{props.title}</label>
+      <PoseGroup>{props.todos.map(instance(Todo))}</PoseGroup>
     </ul>
   )
 })
@@ -64,9 +79,7 @@ const TodoList = query(
             onChange={e => {
               return this.setState({ area: e.target.value })
             }}>
-            {this.props.areas.map(area => {
-              return createInstance(AreaOption, area, area.areaId)
-            })}
+            {this.props.areas.map(instance(AreaOption))}
           </select>
           <button
             onClick={() => {
@@ -80,11 +93,7 @@ const TodoList = query(
             }}>
             Add
           </button>
-          <ul>
-            {this.props.areas.map(area => {
-              return createInstance(Area, area, area.areaId)
-            })}
-          </ul>
+          <ul>{this.props.areas.map(instance(Area))}</ul>
         </div>
       )
     }
@@ -130,9 +139,7 @@ const handleByTag = multimethod(
 handleByTag['app/init'] = (tag, params, callback) => {
   return fetch('/todos')
     .then(response => response.json())
-    .then(result => {
-      return [result]
-    })
+    .then(result => [result])
 }
 
 handleByTag['todo/new'] = (tag, params, callback) => {
@@ -145,9 +152,7 @@ handleByTag['todo/new'] = (tag, params, callback) => {
     body: JSON.stringify({ text, area }),
   })
     .then(response => response.json())
-    .then(result => {
-      return [result]
-    })
+    .then(result => [result])
 }
 
 handleByTag['todo/delete'] = (tag, params, callback) => {
