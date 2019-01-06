@@ -1,21 +1,21 @@
 import React from 'react'
 import './parsers'
-import { mount, query, transact, multimethod } from 'qljs'
+import { mount, query, transact, multimethod, instance } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 import posed, { PoseGroup } from 'react-pose'
 
-const TodoLi = posed.li({
+const Li = posed.li({
   enter: { opacity: 1 },
   exit: {
     opacity: 0,
   },
 })
 
-const Todo = query([['text'], ['todoId']], props => {
+const Todo = query([['text'], ['todoId']], 'todoId')(props => {
   const { text, todoId } = props
   return (
-    <TodoLi {...props}>
+    <Li {...props}>
       {text}
       {
         <button
@@ -25,20 +25,13 @@ const Todo = query([['text'], ['todoId']], props => {
           x
         </button>
       }
-    </TodoLi>
+    </Li>
   )
 })
 
 Todo.displayName = 'Todo'
 
-const instance = Component => atts => (
-  <Component
-    {...atts}
-    key={atts['env'][Component.displayName.toLowerCase() + 'Id']}
-  />
-)
-
-const Area = query([['todos', Todo], ['title']], props => {
+const Area = query([['todos', Todo], ['title']])(props => {
   return (
     <ul>
       <label key="label">{props.title}</label>
@@ -49,14 +42,13 @@ const Area = query([['todos', Todo], ['title']], props => {
 
 Area.displayName = 'Area'
 
-const AreaOption = query([['areaId'], ['title']], props => {
+const AreaOption = query([['areaId'], ['title']], 'areaId')(props => {
   return <option value={props.areaId}>{props.title}</option>
 })
 
 AreaOption.displayName = 'AreaOption'
 
-const TodoList = query(
-  [['areas', {}, Area, AreaOption]],
+const TodoList = query([['areas', {}, Area, AreaOption]])(
   class extends React.Component {
     componentDidMount() {
       transact(this.props, [['app/init']])
