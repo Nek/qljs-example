@@ -21,7 +21,7 @@ read['todos'] = (term, env, state) => {
   } else {
     const res = Object.entries(state.todos)
       .filter(([key, todo]) => {
-        // areaId is string
+        // areaId is a string
         return todo.area == areaId
       })
       .map(([key, todo]) => {
