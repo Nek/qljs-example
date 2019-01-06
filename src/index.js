@@ -31,7 +31,7 @@ const Todo = query([['text'], ['todoId']], 'todoId')(props => {
 
 Todo.displayName = 'Todo'
 
-const Area = query([['todos', Todo], ['title']])(props => {
+const Area = query([['todos', Todo], ['title']], 'areaId')(props => {
   return (
     <ul>
       <label key="label">{props.title}</label>
