@@ -12,15 +12,15 @@ const Li = posed.li({
   },
 })
 
-const Todo = query([['text'], ['todoId']], 'todoId')(props => {
-  const { text, todoId } = props
+const Todo = query([['todoText'], ['todoId']], 'todoId')(props => {
+  const { todoText, todoId } = props
   return (
     <Li {...props}>
-      {text}
+      {todoText}
       {
         <button
           onClick={() => {
-            transact(props, [['todo/delete']])
+            transact(props, [['todoDelete']])
           }}>
           x
         </button>
@@ -58,10 +58,10 @@ const Loading = posed.div({
   exit: { opacity: 0 },
 })
 
-const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
+const TodoList = query([['areas', {}, Area, AreaOption], ['appLoading']])(
   class extends React.Component {
     componentDidMount() {
-      transact(this.props, [['app/init']])
+      transact(this.props, [['appInit']])
     }
     constructor(props) {
       super(props)
@@ -73,7 +73,7 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
     render() {
       return (
         <PoseGroup>
-          {this.props.loading ? (
+          {this.props.appLoading ? (
             <Loading key="loader">Loading...</Loading>
           ) : (
             <TodoListDiv key="todo-list" {...this.props}>
@@ -91,7 +91,7 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
                 onClick={() => {
                   transact(this.props, [
                     [
-                      'todo/new',
+                      'todoNew',
                       {
                         area: this.state.area,
                         text: this.state.text,
@@ -149,13 +149,13 @@ const handleByTag = multimethod(
   () => Promise.resolve([]),
 )
 
-handleByTag['app/init'] = (tag, params, callback) => {
+handleByTag['appInit'] = (tag, params, callback) => {
   return fetch('/todos')
     .then(response => response.json())
     .then(result => [result])
 }
 
-handleByTag['todo/new'] = (tag, params, callback) => {
+handleByTag['todoNew'] = (tag, params, callback) => {
   const { text, area } = params
   return fetch('/todos', {
     method: 'POST',
@@ -168,7 +168,7 @@ handleByTag['todo/new'] = (tag, params, callback) => {
     .then(result => [result])
 }
 
-handleByTag['todo/delete'] = (tag, params, callback) => {
+handleByTag['todoDelete'] = (tag, params, callback) => {
   const { todoId } = params
   return fetch(`/todos/${todoId}`, { method: 'DELETE' })
 }

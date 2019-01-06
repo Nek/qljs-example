@@ -5,7 +5,7 @@ let { read, mutate, remote, sync } = parsers
 // query name
 // environment
 // state
-read['text'] = (term, { todoId }, state) => {
+read['todoText'] = (term, { todoId }, state) => {
   const text = state.todos[todoId] && state.todos[todoId].text
   return text
 }
@@ -53,23 +53,23 @@ read['areaId'] = (term, { areaId }, state) => {
   return state.areas[areaId] && areaId
 }
 
-read['loading'] = (term, env, state) => {
+read['appLoading'] = (term, env, state) => {
   return state.loading
 }
 
-mutate['app/init'] = (term, env, state) => {
+mutate['appInit'] = (term, env, state) => {
   state.loading = true
   return state
 }
 
-mutate['todo/delete'] = (term, { areaId, todoId }, state) => {
+mutate['todoDelete'] = (term, { areaId, todoId }, state) => {
   const newTodos = { ...state.todos }
   delete newTodos[todoId]
   state.todos = newTodos
   return state
 }
 
-mutate['area/delete'] = (term, { areaId }, state) => {
+mutate['areaDelete'] = (term, { areaId }, state) => {
   delete state.areas[areaId]
   state.todos = Object.entries(state.todos)
     .filter(([todoId, { area }]) => area === areaId)
@@ -77,16 +77,16 @@ mutate['area/delete'] = (term, { areaId }, state) => {
   return state.areas
 }
 
-mutate['todo/new'] = ([key, { area, text, todoId }], env, state) => {
+mutate['todoNew'] = ([key, { area, text, todoId }], env, state) => {
   state.todos[todoId] = { text, area }
   return state.todos
 }
 
-remote['todo/new'] = (queryTerm, state) => {
+remote['todoNew'] = (queryTerm, state) => {
   return queryTerm
 }
 
-remote['todo/delete'] = (queryTerm, state) => {
+remote['todoDelete'] = (queryTerm, state) => {
   return queryTerm
 }
 
@@ -102,21 +102,21 @@ remote['areas'] = (queryTerm, state) => {
   return parseChildrenRemote(queryTerm)
 }
 
-remote['app/init'] = (queryTerm, state) => {
+remote['appInit'] = (queryTerm, state) => {
   return queryTerm
 }
 
 sync['areas'] = (queryTerm, result, env, state) => {}
 
-sync['todo/delete'] = (queryTerm, result, env, state) => {}
+sync['todoDelete'] = (queryTerm, result, env, state) => {}
 
-sync['app/init'] = (term, result, env, state) => {
+sync['appInit'] = (term, result, env, state) => {
   delete state.loading
   state.todos = result.todos
   state.areas = result.areas
 }
 
-sync['todo/new'] = ([tag, { todoId }], { id }, env, state) => {
+sync['todoNew'] = ([tag, { todoId }], { id }, env, state) => {
   const todo = state.todos[todoId]
   delete state.todos[todoId]
   state.todos[id] = todo
