@@ -8,8 +8,7 @@ read['text'] = (term, { todoId }, state) => {
 }
 
 read['todoId'] = (term, { todoId: id }, state) => {
-  const text = state.todos[id] && id
-  return text
+  return state.todos[id] && id
 }
 
 read['todos'] = (term, env, state) => {
