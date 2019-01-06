@@ -121,25 +121,23 @@ function compressTerm(term) {
 }
 
 const handleByTag = multimethod(
-  (tag, params, callback) => {
-    return tag
-  },
+  tag => tag,
   'remote handler',
-  undefined,
-  () => {},
+  () => Promise.resolve([]),
+  () => Promise.resolve([]),
 )
 
 handleByTag['app/init'] = (tag, params, callback) => {
-  fetch('/todos')
+  return fetch('/todos')
     .then(response => response.json())
     .then(result => {
-      callback([result])
+      return [result]
     })
 }
 
 handleByTag['todo/new'] = (tag, params, callback) => {
   const { text, area } = params
-  fetch('/todos', {
+  return fetch('/todos', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
@@ -148,19 +146,20 @@ handleByTag['todo/new'] = (tag, params, callback) => {
   })
     .then(response => response.json())
     .then(result => {
-      callback([result])
+      return [result]
     })
 }
 
 handleByTag['todo/delete'] = (tag, params, callback) => {
   const { todoId } = params
-  fetch(`/todos/${todoId}`, { method: 'DELETE' })
+  return fetch(`/todos/${todoId}`, { method: 'DELETE' })
 }
 
-const remoteHandler = (query, callback) => {
+const remoteHandler = query => {
+  console.log(query)
   const [term] = query
   const [tag, params] = compressTerm(term)
-  handleByTag(tag, params, callback)
+  return handleByTag(tag, params)
 }
 
 mount({
