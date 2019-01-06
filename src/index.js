@@ -48,6 +48,16 @@ const AreaOption = query([['areaId'], ['title']], 'areaId')(props => {
 
 AreaOption.displayName = 'AreaOption'
 
+const TodoListDiv = posed.div({
+  enter: { opacity: 1, delay: 300 },
+  exit: { opacity: 0 },
+})
+
+const Loading = posed.div({
+  enter: { opacity: 1 },
+  exit: { opacity: 0 },
+})
+
 const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
   class extends React.Component {
     componentDidMount() {
@@ -61,33 +71,42 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
       }
     }
     render() {
-      if (this.props.loading) return 'Loading...'
       return (
-        <div>
-          <input
-            onChange={e => this.setState({ text: e.target.value })}
-            value={this.state.text}
-          />
-          <select
-            onChange={e => {
-              return this.setState({ area: e.target.value })
-            }}>
-            {this.props.areas.map(instance(AreaOption))}
-          </select>
-          <button
-            onClick={() => {
-              transact(this.props, [
-                [
-                  'todo/new',
-                  { area: this.state.area, text: this.state.text, id: uuid() },
-                ],
-              ])
-              this.setState({ text: '' })
-            }}>
-            Add
-          </button>
-          <ul>{this.props.areas.map(instance(Area))}</ul>
-        </div>
+        <PoseGroup>
+          {this.props.loading ? (
+            <Loading key="loader">Loading...</Loading>
+          ) : (
+            <TodoListDiv key="todo-list" {...this.props}>
+              <input
+                onChange={e => this.setState({ text: e.target.value })}
+                value={this.state.text}
+              />
+              <select
+                onChange={e => {
+                  return this.setState({ area: e.target.value })
+                }}>
+                {this.props.areas.map(instance(AreaOption))}
+              </select>
+              <button
+                onClick={() => {
+                  transact(this.props, [
+                    [
+                      'todo/new',
+                      {
+                        area: this.state.area,
+                        text: this.state.text,
+                        id: uuid(),
+                      },
+                    ],
+                  ])
+                  this.setState({ text: '' })
+                }}>
+                Add
+              </button>
+              <ul>{this.props.areas.map(instance(Area))}</ul>
+            </TodoListDiv>
+          )}
+        </PoseGroup>
       )
     }
   },
