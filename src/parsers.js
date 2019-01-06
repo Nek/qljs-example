@@ -2,6 +2,9 @@ import { parseChildren, parseChildrenRemote, parsers } from 'qljs'
 
 let { read, mutate, remote, sync } = parsers
 
+// query name
+// environment
+// state
 read['text'] = (term, { todoId }, state) => {
   const text = state.todos[todoId] && state.todos[todoId].text
   return text
@@ -50,7 +53,12 @@ read['areaId'] = (term, { areaId }, state) => {
   return state.areas[areaId] && areaId
 }
 
+read['loading'] = (term, env, state) => {
+  return state.loading
+}
+
 mutate['app/init'] = (term, env, state) => {
+  state.loading = true
   return state
 }
 
@@ -103,6 +111,7 @@ sync['areas'] = (queryTerm, result, env, state) => {}
 sync['todo/delete'] = (queryTerm, result, env, state) => {}
 
 sync['app/init'] = (term, result, env, state) => {
+  delete state.loading
   state.todos = result.todos
   state.areas = result.areas
 }

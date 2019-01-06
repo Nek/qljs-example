@@ -48,7 +48,7 @@ const AreaOption = query([['areaId'], ['title']], 'areaId')(props => {
 
 AreaOption.displayName = 'AreaOption'
 
-const TodoList = query([['areas', {}, Area, AreaOption]])(
+const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
   class extends React.Component {
     componentDidMount() {
       transact(this.props, [['app/init']])
@@ -61,6 +61,7 @@ const TodoList = query([['areas', {}, Area, AreaOption]])(
       }
     }
     render() {
+      if (this.props.loading) return 'Loading...'
       return (
         <div>
           <input
@@ -95,6 +96,7 @@ const TodoList = query([['areas', {}, Area, AreaOption]])(
 TodoList.displayName = 'TodoList'
 
 let state = {
+  loading: true,
   todos: {},
   areas: {},
 }
@@ -153,7 +155,6 @@ handleByTag['todo/delete'] = (tag, params, callback) => {
 }
 
 const remoteHandler = query => {
-  console.log(query)
   const [term] = query
   const [tag, params] = compressTerm(term)
   return handleByTag(tag, params)
