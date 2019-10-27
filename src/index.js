@@ -2,6 +2,7 @@ import React from 'react'
 import './parsers'
 import { mount, query, transact, multimethod, instance, getId } from 'qljs'
 import uuid from 'uuid'
+import './App.css'
 
 const Todo = query([['todoId'], ['text']], 'todoId')(props => {
   const { text, todoId } = props
