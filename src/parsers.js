@@ -21,11 +21,11 @@ read['todos'] = (term, env, state) => {
     return parseChildren(term, { ...env, todoId })
   } else {
     const res = Object.entries(state.todos)
-      .filter(([key, todo]) => {
+      .filter(([, todo]) => {
         // areaId is string
         return todo.area == areaId
       })
-      .map(([key, todo]) => {
+      .map(([key]) => {
         return parseChildren(term, { ...env, todoId: key })
       })
     return res

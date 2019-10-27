@@ -4,8 +4,8 @@ import { mount, query, transact, multimethod } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = query([['todoId'], ['text']], 'todoId')(props => {
-  const { text, todoId } = props
+const Todo = query([['todoId'], ['text']])(props => {
+  const { text } = props
   return (
     <li>
       {text}
@@ -23,7 +23,7 @@ const Todo = query([['todoId'], ['text']], 'todoId')(props => {
 
 Todo.displayName = 'Todo'
 
-const Area = query([['areaTitle'], ['todos', Todo]], 'areaId')(props => {
+const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(props => {
   return (
     <ul>
       <label key="label">{props.areaTitle}</label>
@@ -38,7 +38,7 @@ const Area = query([['areaTitle'], ['todos', Todo]], 'areaId')(props => {
 
 Area.displayName = 'Area'
 
-const AreaOption = query([['areaId'], ['areaTitle']], 'areaId')(props => {
+const AreaOption = query([['areaId'], ['areaTitle']])(props => {
   return <option value={props.areaId}>{props.areaTitle}</option>
 })
 
@@ -50,7 +50,6 @@ const TodoList = query([
   ['initialized'],
 ])(props => {
   useEffect(() => {
-    console.log(props)
     !props.initialized && transact(props, [['app/init']])
   }, [props])
 
@@ -62,7 +61,7 @@ const TodoList = query([
       {props.loading ? (
         <div key="loader">Loading...</div>
       ) : (
-        <div key="todo-list" {...props}>
+        <div key="todo-list">
           <input onChange={e => setText(e.target.value)} value={text} />
           <select
             onChange={e => {
@@ -106,14 +105,6 @@ let state = {
   initialized: false,
   todos: {},
   areas: {},
-}
-
-const firstChild = term => {
-  if (term) {
-    const [, , fc = []] = term
-    return fc
-  }
-  return []
 }
 
 function compressTerm(term) {
@@ -170,7 +161,6 @@ const remoteHandler = query => {
 mount({
   state,
   remoteHandler,
-})({
   component: TodoList,
   element: document.getElementById('root'),
 })
