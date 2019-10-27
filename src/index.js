@@ -1,6 +1,6 @@
 import React from 'react'
 import './parsers'
-import { mount, query, transact, multimethod, instance } from 'qljs'
+import { mount, query, transact, multimethod, instance, getId } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 import posed, { PoseGroup } from 'react-pose'
@@ -12,7 +12,7 @@ const Li = posed.li({
   },
 })
 
-const Todo = query([['text'], ['todoId']], 'todoId')(props => {
+const Todo = query([['todoId'], ['text']], 'todoId')(props => {
   const { text, todoId } = props
   return (
     <Li {...props}>
@@ -31,11 +31,15 @@ const Todo = query([['text'], ['todoId']], 'todoId')(props => {
 
 Todo.displayName = 'Todo'
 
-const Area = query([['todos', Todo], ['areaTitle']], 'areaId')(props => {
+const Area = query([['areaTitle'], ['todos', Todo]], 'areaId')(props => {
   return (
     <ul>
       <label key="label">{props.areaTitle}</label>
-      <PoseGroup>{props.todos.map(instance(Todo))}</PoseGroup>
+      <PoseGroup>
+        {props.todos.map(atts => (
+          <Todo {...atts} />
+        ))}
+      </PoseGroup>
     </ul>
   )
 })
@@ -63,6 +67,7 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
     componentDidMount() {
       transact(this.props, [['app/init']])
     }
+
     constructor(props) {
       super(props)
       this.state = {
@@ -70,6 +75,7 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
         area: 0,
       }
     }
+
     render() {
       return (
         <PoseGroup>
@@ -85,7 +91,9 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
                 onChange={e => {
                   return this.setState({ area: e.target.value })
                 }}>
-                {this.props.areas.map(instance(AreaOption))}
+                {this.props.areas.map(atts => (
+                  <AreaOption {...atts} />
+                ))}
               </select>
               <button
                 onClick={() => {
@@ -103,7 +111,11 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
                 }}>
                 Add
               </button>
-              <ul>{this.props.areas.map(instance(Area))}</ul>
+              <ul>
+                {this.props.areas.map(atts => (
+                  <Area {...atts} />
+                ))}
+              </ul>
             </TodoListDiv>
           )}
         </PoseGroup>
@@ -174,7 +186,6 @@ handleByTag['todo/delete'] = (tag, params, callback) => {
 }
 
 const remoteHandler = query => {
-  console.log(query)
   const [term] = query
   const [tag, params] = compressTerm(term)
   return handleByTag(tag, params)
