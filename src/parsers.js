@@ -57,8 +57,13 @@ read['loading'] = (term, env, state) => {
   return state.loading
 }
 
+read['initialized'] = (term, env, state) => {
+  return state.initialized
+}
+
 mutate['app/init'] = (term, env, state) => {
   state.loading = true
+  state.initialized = true
   return state
 }
 

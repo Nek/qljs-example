@@ -39,6 +39,7 @@
     "postcss-loader": "^3.0.0",
     "postcss-preset-env": "^6.7.0",
     "postcss-safe-parser": "^4.0.1",
+    "qljs": "../qljs",
     "react": "^16.11.0",
     "react-app-polyfill": "^1.0.4",
     "react-dev-utils": "^9.1.0",
@@ -65,9 +66,12 @@
   "eslintConfig": {
     "extends": "react-app",
     "plugins": [
-      "prettier"
+      "prettier",
+      "react-hooks"
     ],
     "rules": {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       "prettier/prettier": [
         "error"
       ]
@@ -81,11 +85,6 @@
   ],
   "devDependencies": {
     "@babel/plugin-syntax-import-meta": "^7.2.0",
-    "@storybook/addon-actions": "^5.2.5",
-    "@storybook/addon-links": "^5.2.5",
-    "@storybook/addon-storyshots": "^5.2.5",
-    "@storybook/addons": "^5.2.5",
-    "@storybook/react": "^5.2.5",
     "babel-plugin-require-context-hook": "^1.0.0",
     "babel-plugin-syntax-trailing-function-commas": "^6.22.0",
     "babel-runtime": "^6.26.0",

@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './parsers'
-import { mount, query, transact, multimethod, instance, getId } from 'qljs'
+import { mount, query, transact, multimethod } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
@@ -44,72 +44,66 @@ const AreaOption = query([['areaId'], ['areaTitle']], 'areaId')(props => {
 
 AreaOption.displayName = 'AreaOption'
 
-const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
-  class extends React.Component {
-    componentDidMount() {
-      transact(this.props, [['app/init']])
-    }
+const TodoList = query([
+  ['areas', {}, Area, AreaOption],
+  ['loading'],
+  ['initialized'],
+])(props => {
+  useEffect(() => {
+    console.log(props)
+    !props.initialized && transact(props, [['app/init']])
+  }, [props])
 
-    constructor(props) {
-      super(props)
-      this.state = {
-        text: '',
-        area: 0,
-      }
-    }
+  const [text, setText] = useState('')
+  const [area, setArea] = useState(0)
 
-    render() {
-      return (
-        <div>
-          {this.props.loading ? (
-            <div key="loader">Loading...</div>
-          ) : (
-            <div key="todo-list" {...this.props}>
-              <input
-                onChange={e => this.setState({ text: e.target.value })}
-                value={this.state.text}
-              />
-              <select
-                onChange={e => {
-                  return this.setState({ area: e.target.value })
-                }}>
-                {this.props.areas.map(atts => (
-                  <AreaOption {...atts} />
-                ))}
-              </select>
-              <button
-                onClick={() => {
-                  transact(this.props, [
-                    [
-                      'todo/new',
-                      {
-                        area: this.state.area,
-                        text: this.state.text,
-                        id: uuid(),
-                      },
-                    ],
-                  ])
-                  this.setState({ text: '' })
-                }}>
-                Add
-              </button>
-              <ul>
-                {this.props.areas.map(atts => (
-                  <Area {...atts} />
-                ))}
-              </ul>
-            </div>
-          )}
+  return (
+    <div>
+      {props.loading ? (
+        <div key="loader">Loading...</div>
+      ) : (
+        <div key="todo-list" {...props}>
+          <input onChange={e => setText(e.target.value)} value={text} />
+          <select
+            onChange={e => {
+              setArea(e.target.value)
+            }}>
+            {props.areas.map(atts => (
+              <AreaOption {...atts} />
+            ))}
+          </select>
+          <button
+            onClick={() => {
+              transact(props, [
+                [
+                  'todo/new',
+                  {
+                    area,
+                    text,
+                    id: uuid(),
+                  },
+                ],
+              ])
+              setText('')
+            }}>
+            Add
+          </button>
+          <ul>
+            {props.areas.map(atts => (
+              <Area {...atts} />
+            ))}
+          </ul>
         </div>
-      )
-    }
-  },
-)
+      )}
+    </div>
+  )
+})
 
 TodoList.displayName = 'TodoList'
 
 let state = {
   loading: true,
+  initialized: false,
   todos: {},
   areas: {},
 }
