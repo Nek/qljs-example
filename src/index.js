@@ -2,20 +2,11 @@ import React from 'react'
 import './parsers'
 import { mount, query, transact, multimethod, instance, getId } from 'qljs'
 import uuid from 'uuid'
-import './App.css'
-import posed, { PoseGroup } from 'react-pose'
-
-const Li = posed.li({
-  enter: { opacity: 1 },
-  exit: {
-    opacity: 0,
-  },
-})
 
 const Todo = query([['todoId'], ['text']], 'todoId')(props => {
   const { text, todoId } = props
   return (
-    <Li {...props}>
+    <li>
       {text}
       {
         <button
@@ -25,7 +16,7 @@ const Todo = query([['todoId'], ['text']], 'todoId')(props => {
           x
         </button>
       }
-    </Li>
+    </li>
   )
 })
 
@@ -35,11 +26,11 @@ const Area = query([['areaTitle'], ['todos', Todo]], 'areaId')(props => {
   return (
     <ul>
       <label key="label">{props.areaTitle}</label>
-      <PoseGroup>
+      <div>
         {props.todos.map(atts => (
           <Todo {...atts} />
         ))}
-      </PoseGroup>
+      </div>
     </ul>
   )
 })
@@ -51,16 +42,6 @@ const AreaOption = query([['areaId'], ['areaTitle']], 'areaId')(props => {
 })
 
 AreaOption.displayName = 'AreaOption'
-
-const TodoListDiv = posed.div({
-  enter: { opacity: 1, delay: 300 },
-  exit: { opacity: 0 },
-})
-
-const Loading = posed.div({
-  enter: { opacity: 1 },
-  exit: { opacity: 0 },
-})
 
 const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
   class extends React.Component {
@@ -78,11 +59,11 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
 
     render() {
       return (
-        <PoseGroup>
+        <div>
           {this.props.loading ? (
-            <Loading key="loader">Loading...</Loading>
+            <div key="loader">Loading...</div>
           ) : (
-            <TodoListDiv key="todo-list" {...this.props}>
+            <div key="todo-list" {...this.props}>
               <input
                 onChange={e => this.setState({ text: e.target.value })}
                 value={this.state.text}
@@ -116,9 +97,9 @@ const TodoList = query([['areas', {}, Area, AreaOption], ['loading']])(
                   <Area {...atts} />
                 ))}
               </ul>
-            </TodoListDiv>
+            </div>
           )}
-        </PoseGroup>
+        </div>
       )
     }
   },
