@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import './parsers'
-import { mount, query, transact, multimethod } from 'qljs'
+import { mount, query, transact, multimethod, map } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = query([['todoId'], ['text']])(props => {
-  const { text } = props
+const Todo = query([['todoId'], ['text']])(atts => {
+  const { text } = atts
   return (
     <li>
       {text}
       {
         <button
           onClick={() => {
-            transact(props, [['todo/delete']])
+            transact(atts, [['todo/delete']])
           }}>
           x
         </button>
@@ -23,23 +23,21 @@ const Todo = query([['todoId'], ['text']])(props => {
 
 Todo.displayName = 'Todo'
 
-const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(props => {
+const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(atts => {
+  const { areaTitle, todos } = atts
   return (
     <ul>
-      <label key="label">{props.areaTitle}</label>
-      <div>
-        {props.todos.map(atts => (
-          <Todo {...atts} />
-        ))}
-      </div>
+      <label key="label">{areaTitle}</label>
+      <div>{map(todos, Todo)}</div>
     </ul>
   )
 })
 
 Area.displayName = 'Area'
 
-const AreaOption = query([['areaId'], ['areaTitle']])(props => {
-  return <option value={props.areaId}>{props.areaTitle}</option>
+const AreaOption = query([['areaId'], ['areaTitle']])(atts => {
+  const { areaId, areaTitle } = atts
+  return <option value={areaId}>{areaTitle}</option>
 })
 
 AreaOption.displayName = 'AreaOption'
@@ -48,17 +46,19 @@ const TodoList = query([
   ['areas', {}, Area, AreaOption],
   ['loading'],
   ['initialized'],
-])(props => {
+])(atts => {
+  const { areas, loading, initialized } = atts
+
   useEffect(() => {
-    !props.initialized && transact(props, [['app/init']])
-  }, [props])
+    !initialized && transact(atts, [['app/init']])
+  }, [atts, initialized])
 
   const [text, setText] = useState('')
   const [area, setArea] = useState(0)
 
   return (
     <div>
-      {props.loading ? (
+      {loading ? (
         <div key="loader">Loading...</div>
       ) : (
         <div key="todo-list">
@@ -67,13 +67,11 @@ const TodoList = query([
             onChange={e => {
               setArea(e.target.value)
             }}>
-            {props.areas.map(atts => (
-              <AreaOption {...atts} />
-            ))}
+            {map(areas, AreaOption)}
           </select>
           <button
             onClick={() => {
-              transact(props, [
+              transact(atts, [
                 [
                   'todo/new',
                   {
@@ -87,11 +85,7 @@ const TodoList = query([
             }}>
             Add
           </button>
-          <ul>
-            {props.areas.map(atts => (
-              <Area {...atts} />
-            ))}
-          </ul>
+          <ul>{map(areas, Area)}</ul>
         </div>
       )}
     </div>
