@@ -4,7 +4,7 @@ import { mount, query, transact, multimethod, map } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = query([['todoId'], ['text']])(ctx => {
+const Todo = query([['todoId'], ['text']], ctx => {
   const { text } = ctx
   return (
     <li>
@@ -21,9 +21,15 @@ const Todo = query([['todoId'], ['text']])(ctx => {
   )
 })
 
+function q(term) {
+  return function decorator(decorator) {
+    query(term, decorator.descriptor.value)
+  }
+}
+
 Todo.displayName = 'Todo'
 
-const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(ctx => {
+const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]], ctx => {
   const { areaTitle, todos } = ctx
   return (
     <ul>
@@ -35,62 +41,61 @@ const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(ctx => {
 
 Area.displayName = 'Area'
 
-const AreaOption = query([['areaId'], ['areaTitle']])(ctx => {
+const AreaOption = query([['areaId'], ['areaTitle']], ctx => {
   const { areaId, areaTitle } = ctx
   return <option value={areaId}>{areaTitle}</option>
 })
 
 AreaOption.displayName = 'AreaOption'
 
-const TodoList = query([
-  ['areas', {}, Area, AreaOption],
-  ['loading'],
-  ['initialized'],
-])(ctx => {
-  const { areas, loading, initialized } = ctx
+const TodoList = query(
+  [['areas', {}, Area, AreaOption], ['loading'], ['initialized']],
+  ctx => {
+    const { areas, loading, initialized } = ctx
 
-  useEffect(() => {
-    !initialized && transact(ctx, [['app/init']])
-  }, [ctx, initialized])
+    useEffect(() => {
+      !initialized && transact(ctx, [['app/init']])
+    }, [ctx, initialized])
 
-  const [text, setText] = useState('')
-  const [area, setArea] = useState(0)
+    const [text, setText] = useState('')
+    const [area, setArea] = useState(0)
 
-  return (
-    <div>
-      {loading ? (
-        <div key="loader">Loading...</div>
-      ) : (
-        <div key="todo-list">
-          <input onChange={e => setText(e.target.value)} value={text} />
-          <select
-            onChange={e => {
-              setArea(e.target.value)
-            }}>
-            {map(areas, AreaOption)}
-          </select>
-          <button
-            onClick={() => {
-              transact(ctx, [
-                [
-                  'todo/new',
-                  {
-                    area,
-                    text,
-                    id: uuid(),
-                  },
-                ],
-              ])
-              setText('')
-            }}>
-            Add
-          </button>
-          <ul>{map(areas, Area)}</ul>
-        </div>
-      )}
-    </div>
-  )
-})
+    return (
+      <div>
+        {loading ? (
+          <div key="loader">Loading...</div>
+        ) : (
+          <div key="todo-list">
+            <input onChange={e => setText(e.target.value)} value={text} />
+            <select
+              onChange={e => {
+                setArea(e.target.value)
+              }}>
+              {map(areas, AreaOption)}
+            </select>
+            <button
+              onClick={() => {
+                transact(ctx, [
+                  [
+                    'todo/new',
+                    {
+                      area,
+                      text,
+                      id: uuid(),
+                    },
+                  ],
+                ])
+                setText('')
+              }}>
+              Add
+            </button>
+            <ul>{map(areas, Area)}</ul>
+          </div>
+        )}
+      </div>
+    )
+  },
+)
 
 TodoList.displayName = 'TodoList'
 
