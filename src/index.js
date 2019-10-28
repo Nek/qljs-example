@@ -4,15 +4,15 @@ import { mount, query, transact, multimethod, map } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = query([['todoId'], ['text']])(atts => {
-  const { text } = atts
+const Todo = query([['todoId'], ['text']])(ctx => {
+  const { text } = ctx
   return (
     <li>
       {text}
       {
         <button
           onClick={() => {
-            transact(atts, [['todo/delete']])
+            transact(ctx, [['todo/delete']])
           }}>
           x
         </button>
@@ -23,8 +23,8 @@ const Todo = query([['todoId'], ['text']])(atts => {
 
 Todo.displayName = 'Todo'
 
-const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(atts => {
-  const { areaTitle, todos } = atts
+const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(ctx => {
+  const { areaTitle, todos } = ctx
   return (
     <ul>
       <label key="label">{areaTitle}</label>
@@ -35,8 +35,8 @@ const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]])(atts => {
 
 Area.displayName = 'Area'
 
-const AreaOption = query([['areaId'], ['areaTitle']])(atts => {
-  const { areaId, areaTitle } = atts
+const AreaOption = query([['areaId'], ['areaTitle']])(ctx => {
+  const { areaId, areaTitle } = ctx
   return <option value={areaId}>{areaTitle}</option>
 })
 
@@ -46,12 +46,12 @@ const TodoList = query([
   ['areas', {}, Area, AreaOption],
   ['loading'],
   ['initialized'],
-])(atts => {
-  const { areas, loading, initialized } = atts
+])(ctx => {
+  const { areas, loading, initialized } = ctx
 
   useEffect(() => {
-    !initialized && transact(atts, [['app/init']])
-  }, [atts, initialized])
+    !initialized && transact(ctx, [['app/init']])
+  }, [ctx, initialized])
 
   const [text, setText] = useState('')
   const [area, setArea] = useState(0)
@@ -71,7 +71,7 @@ const TodoList = query([
           </select>
           <button
             onClick={() => {
-              transact(atts, [
+              transact(ctx, [
                 [
                   'todo/new',
                   {
