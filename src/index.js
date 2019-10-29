@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import './parsers'
-import { mount, query, transact, multimethod, map } from 'qljs'
+import { mount, component, transact, multimethod, render } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = query([['todoId'], ['text']], ctx => {
+const Todo = component([['todoId'], ['text']], ctx => {
   const { text } = ctx
   return (
     <li>
@@ -21,34 +21,28 @@ const Todo = query([['todoId'], ['text']], ctx => {
   )
 })
 
-function q(term) {
-  return function decorator(decorator) {
-    query(term, decorator.descriptor.value)
-  }
-}
-
 Todo.displayName = 'Todo'
 
-const Area = query([['areaId'], ['areaTitle'], ['todos', Todo]], ctx => {
+const Area = component([['areaId'], ['areaTitle'], ['todos', Todo]], ctx => {
   const { areaTitle, todos } = ctx
   return (
     <ul>
       <label key="label">{areaTitle}</label>
-      <div>{map(todos, Todo)}</div>
+      <div>{render(todos, Todo)}</div>
     </ul>
   )
 })
 
 Area.displayName = 'Area'
 
-const AreaOption = query([['areaId'], ['areaTitle']], ctx => {
+const AreaOption = component([['areaId'], ['areaTitle']], ctx => {
   const { areaId, areaTitle } = ctx
   return <option value={areaId}>{areaTitle}</option>
 })
 
 AreaOption.displayName = 'AreaOption'
 
-const TodoList = query(
+const TodoList = component(
   [['areas', {}, Area, AreaOption], ['loading'], ['initialized']],
   ctx => {
     const { areas, loading, initialized } = ctx
@@ -71,7 +65,7 @@ const TodoList = query(
               onChange={e => {
                 setArea(e.target.value)
               }}>
-              {map(areas, AreaOption)}
+              {render(areas, AreaOption)}
             </select>
             <button
               onClick={() => {
@@ -89,7 +83,7 @@ const TodoList = query(
               }}>
               Add
             </button>
-            <ul>{map(areas, Area)}</ul>
+            <ul>{render(areas, Area)}</ul>
           </div>
         )}
       </div>
