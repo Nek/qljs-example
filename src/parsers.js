@@ -9,7 +9,6 @@ read['text'] = (term, { todoId }, state) => {
   const text = state.todos[todoId] && state.todos[todoId].text
   return text
 }
-
 read['todoId'] = (term, { todoId: id }, state) => {
   return state.todos[id] && id
 }

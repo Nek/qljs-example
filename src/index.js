@@ -5,14 +5,14 @@ import uuid from 'uuid'
 import './App.css'
 
 const Todo = component([['todoId'], ['text']], ctx => {
-  const { text } = ctx
+  const { text, transact } = ctx
   return (
     <li>
       {text}
       {
         <button
           onClick={() => {
-            transact(ctx, [['todo/delete']])
+            transact([['todo/delete']])
           }}>
           x
         </button>
@@ -45,11 +45,12 @@ AreaOption.displayName = 'AreaOption'
 const TodoList = component(
   [['areas', {}, Area, AreaOption], ['loading'], ['initialized']],
   ctx => {
-    const { areas, loading, initialized } = ctx
+    const { areas, loading, transact } = ctx
 
     useEffect(() => {
-      !initialized && transact(ctx, [['app/init']])
-    }, [ctx, initialized])
+      transact([['app/init']])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const [text, setText] = useState('')
     const [area, setArea] = useState(0)
@@ -69,7 +70,7 @@ const TodoList = component(
             </select>
             <button
               onClick={() => {
-                transact(ctx, [
+                transact([
                   [
                     'todo/new',
                     {
