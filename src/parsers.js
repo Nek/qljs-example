@@ -1,19 +1,19 @@
-import { parseChildren, parseChildrenRemote, parsers } from 'qljs'
+import { parseChildren, parseChildrenRemote, parsers, read, mutate } from 'qljs'
 
-let { read, mutate, remote, sync } = parsers
+let { remote, sync } = parsers
 
 // query name
 // environment
 // state
-read['text'] = (term, { todoId }, state) => {
+read('text', (term, { todoId }, state) => {
   const text = state.todos[todoId] && state.todos[todoId].text
   return text
-}
-read['todoId'] = (term, { todoId: id }, state) => {
+})
+read('todoId', (term, { todoId: id }, state) => {
   return state.todos[id] && id
-}
+})
 
-read['todos'] = (term, env, state) => {
+read('todos', (term, env, state) => {
   const { areaId } = env
   const [, { todoId }] = term
   if (todoId) {
@@ -29,9 +29,9 @@ read['todos'] = (term, env, state) => {
       })
     return res
   }
-}
+})
 
-read['areas'] = (term, env, state) => {
+read('areas', (term, env, state) => {
   const [, { areaId }] = term
   if (areaId) {
     return parseChildren(term, { ...env, areaId })
@@ -42,49 +42,44 @@ read['areas'] = (term, env, state) => {
     })
     return res
   }
-}
+})
 
-read['areaTitle'] = (term, { areaId }, state) => {
+read('areaTitle', (term, { areaId }, state) => {
   return state.areas[areaId] && state.areas[areaId].title
-}
+})
 
-read['areaId'] = (term, { areaId }, state) => {
+read('areaId', (term, { areaId }, state) => {
   return state.areas[areaId] && areaId
-}
+})
 
-read['loading'] = (term, env, state) => {
+read('loading', (term, env, state) => {
   return state.loading
-}
+})
 
-read['initialized'] = (term, env, state) => {
-  return state.initialized
-}
-
-mutate['app/init'] = (term, env, state) => {
+mutate('app/init', (term, env, state) => {
   state.loading = true
-  state.initialized = true
   return state
-}
+})
 
-mutate['todo/delete'] = (term, { areaId, todoId }, state) => {
+mutate('todo/delete', (term, { areaId, todoId }, state) => {
   const newTodos = { ...state.todos }
   delete newTodos[todoId]
   state.todos = newTodos
   return state
-}
+})
 
-mutate['area/delete'] = (term, { areaId }, state) => {
+mutate('area/delete', (term, { areaId }, state) => {
   delete state.areas[areaId]
   state.todos = Object.entries(state.todos)
     .filter(([todoId, { area }]) => area === areaId)
     .reduce((res, [todoId, todo]) => ({ ...res, [todoId]: todo }), {})
   return state.areas
-}
+})
 
-mutate['todo/new'] = ([key, { area, text, todoId }], env, state) => {
+mutate('todo/new', ([key, { area, text, todoId }], env, state) => {
   state.todos[todoId] = { text, area }
   return state.todos
-}
+})
 
 remote['todo/new'] = (queryTerm, state) => {
   return queryTerm

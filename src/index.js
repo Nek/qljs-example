@@ -43,7 +43,7 @@ const AreaOption = component([['areaId'], ['areaTitle']], ctx => {
 AreaOption.displayName = 'AreaOption'
 
 const TodoList = component(
-  [['areas', {}, Area, AreaOption], ['loading'], ['initialized']],
+  [['areas', {}, Area, AreaOption], ['loading']],
   ctx => {
     const { areas, loading, transact } = ctx
 
