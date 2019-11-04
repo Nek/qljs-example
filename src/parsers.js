@@ -1,6 +1,12 @@
-import { parseChildren, parseChildrenRemote, parsers, read, mutate } from 'qljs'
-
-let { remote, sync } = parsers
+import {
+  parseChildren,
+  parseChildrenRemote,
+  parsers,
+  read,
+  mutate,
+  remote,
+  sync,
+} from 'qljs'
 
 // query name
 // environment
@@ -81,42 +87,42 @@ mutate('todo/new', ([key, { area, text, todoId }], env, state) => {
   return state.todos
 })
 
-remote['todo/new'] = (queryTerm, state) => {
+remote('todo/new', (queryTerm, state) => {
   return queryTerm
-}
+})
 
-remote['todo/delete'] = (queryTerm, state) => {
+remote('todo/delete', (queryTerm, state) => {
   return queryTerm
-}
+})
 
-remote['areaTitle'] = (queryTerm, state) => {
+remote('areaTitle', (queryTerm, state) => {
   return queryTerm
-}
+})
 
-remote['todos'] = (queryTerm, state) => {
+remote('todos', (queryTerm, state) => {
   return parseChildrenRemote(queryTerm)
-}
+})
 
-remote['areas'] = (queryTerm, state) => {
+remote('areas', (queryTerm, state) => {
   return parseChildrenRemote(queryTerm)
-}
+})
 
-remote['app/init'] = (queryTerm, state) => {
+remote('app/init', (queryTerm, state) => {
   return queryTerm
-}
+})
 
-sync['areas'] = (queryTerm, result, env, state) => {}
+sync('areas', (queryTerm, result, env, state) => {})
 
-sync['todo/delete'] = (queryTerm, result, env, state) => {}
+sync('todo/delete', (queryTerm, result, env, state) => {})
 
-sync['app/init'] = (term, result, env, state) => {
+sync('app/init', (term, result, env, state) => {
   delete state.loading
   state.todos = result.todos
   state.areas = result.areas
-}
+})
 
-sync['todo/new'] = ([tag, { todoId }], { id }, env, state) => {
+sync('todo/new', ([tag, { todoId }], { id }, env, state) => {
   const todo = state.todos[todoId]
   delete state.todos[todoId]
   state.todos[id] = todo
-}
+})
