@@ -101,15 +101,15 @@ let state = {
   areas: {},
 }
 
-const handleByTag = {}
+const remoteHandlers = {}
 
-handleByTag['app/init'] = (tag, params, callback) => {
+remoteHandlers['app/init'] = (tag, params, callback) => {
   return fetch('/todos')
     .then(response => response.json())
     .then(result => [result])
 }
 
-handleByTag['todo/new'] = (tag, params, callback) => {
+remoteHandlers['todo/new'] = (tag, params, callback) => {
   const { text, area } = params
   return fetch('/todos', {
     method: 'POST',
@@ -122,7 +122,7 @@ handleByTag['todo/new'] = (tag, params, callback) => {
     .then(result => [result])
 }
 
-handleByTag['todo/delete'] = (tag, params, callback) => {
+remoteHandlers['todo/delete'] = (tag, params, callback) => {
   const { todoId } = params
   return fetch(`/todos/${todoId}`, { method: 'DELETE' })
     .then(response => response.json())
@@ -130,7 +130,7 @@ handleByTag['todo/delete'] = (tag, params, callback) => {
 }
 
 const remoteHandler = (tag, params) => {
-  return handleByTag[tag] ? handleByTag[tag](tag, params) : Promise.resolve([])
+  return remoteHandlers[tag] ? remoteHandlers[tag](tag, params) : Promise.resolve([])
 }
 
 const mount = init({ state, remoteHandler })
