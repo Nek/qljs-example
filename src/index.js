@@ -101,20 +101,6 @@ let state = {
   areas: {},
 }
 
-function compressTerm(term) {
-  const compressInner = (term, res) => {
-    if (term === undefined) {
-      return res
-    } else {
-      res.tags.push(term[0])
-      res.params.push(term[1])
-      return compressInner(term[2], res)
-    }
-  }
-  const { tags, params } = compressInner(term, { tags: [], params: [] })
-  return [tags.reverse()[0], params.reduce((res, p) => ({ ...res, ...p }), {})]
-}
-
 const handleByTag = multimethod(
   tag => tag,
   'remote handler',
@@ -148,9 +134,7 @@ handleByTag['todo/delete'] = (tag, params, callback) => {
     .then(result => [result])
 }
 
-const remoteHandler = query => {
-  const [term] = query
-  const [tag, params] = compressTerm(term)
+const remoteHandler = (tag, params) => {
   return handleByTag(tag, params)
 }
 

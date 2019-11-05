@@ -1,7 +1,6 @@
 import {
   parseChildren,
   parseChildrenRemote,
-  parsers,
   read,
   mutate,
   remote,
@@ -87,42 +86,40 @@ mutate('todo/new', ([key, { area, text, todoId }], env, state) => {
   return state.todos
 })
 
-remote('todo/new', (queryTerm, state) => {
-  return queryTerm
+remote('todo/new', (term, state) => {
+  return term
 })
 
-remote('todo/delete', (queryTerm, state) => {
-  return queryTerm
+remote('todo/delete', (term, state) => {
+  return term
 })
 
-remote('todos', (queryTerm, state) => {
-  return parseChildrenRemote(queryTerm)
+remote('todos', (term, state) => {
+  return parseChildrenRemote(term)
 })
 
-remote('areas', (queryTerm, state) => {
-  return parseChildrenRemote(queryTerm)
+remote('areas', (term, state) => {
+  return parseChildrenRemote(term)
 })
 
-remote('app/init', (queryTerm, state) => {
-  return queryTerm
+remote('app/init', (term, state) => {
+  return term
 })
 
 sync('areas', (queryTerm, result, env, state) => {})
 
-sync('todo/delete', (queryTerm, result, env, state) => {
-  console.log('!!!')
+sync('todo/delete', (term, result, env, state) => {
+  window.alert(JSON.stringify(term))
 })
 
 sync('app/init', (term, result, env, state) => {
   delete state.loading
   state.todos = result.todos
   state.areas = result.areas
-  console.log('!')
 })
 
 sync('todo/new', ([tag, { todoId }], { id }, env, state) => {
   const todo = state.todos[todoId]
   delete state.todos[todoId]
   state.todos[id] = todo
-  console.log('!!')
 })
