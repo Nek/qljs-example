@@ -106,7 +106,7 @@ remote('app/init', (term, state) => {
   return term
 })
 
-sync('areas', (queryTerm, result, env, state) => {})
+sync('areas', (term, result, env, state) => {})
 
 sync('todo/delete', (term, result, env, state) => {
   window.alert(JSON.stringify(term))

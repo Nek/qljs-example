@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './parsers'
-import { mount, component, transact, multimethod, render } from 'qljs'
+import { mount, component, render } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
@@ -101,12 +101,7 @@ let state = {
   areas: {},
 }
 
-const handleByTag = multimethod(
-  tag => tag,
-  'remote handler',
-  () => Promise.resolve([]),
-  () => Promise.resolve([]),
-)
+const handleByTag = {}
 
 handleByTag['app/init'] = (tag, params, callback) => {
   return fetch('/todos')
@@ -135,7 +130,7 @@ handleByTag['todo/delete'] = (tag, params, callback) => {
 }
 
 const remoteHandler = (tag, params) => {
-  return handleByTag(tag, params)
+  return handleByTag[tag] ? handleByTag[tag](tag, params) : Promise.resolve([])
 }
 
 mount({
