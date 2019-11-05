@@ -95,10 +95,6 @@ remote('todo/delete', (queryTerm, state) => {
   return queryTerm
 })
 
-remote('areaTitle', (queryTerm, state) => {
-  return queryTerm
-})
-
 remote('todos', (queryTerm, state) => {
   return parseChildrenRemote(queryTerm)
 })
@@ -113,16 +109,20 @@ remote('app/init', (queryTerm, state) => {
 
 sync('areas', (queryTerm, result, env, state) => {})
 
-sync('todo/delete', (queryTerm, result, env, state) => {})
+sync('todo/delete', (queryTerm, result, env, state) => {
+  console.log('!!!')
+})
 
 sync('app/init', (term, result, env, state) => {
   delete state.loading
   state.todos = result.todos
   state.areas = result.areas
+  console.log('!')
 })
 
 sync('todo/new', ([tag, { todoId }], { id }, env, state) => {
   const todo = state.todos[todoId]
   delete state.todos[todoId]
   state.todos[id] = todo
+  console.log('!!')
 })

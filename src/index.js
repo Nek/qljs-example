@@ -144,6 +144,8 @@ handleByTag['todo/new'] = (tag, params, callback) => {
 handleByTag['todo/delete'] = (tag, params, callback) => {
   const { todoId } = params
   return fetch(`/todos/${todoId}`, { method: 'DELETE' })
+    .then(response => response.json())
+    .then(result => [result])
 }
 
 const remoteHandler = query => {
