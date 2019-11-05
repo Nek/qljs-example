@@ -130,7 +130,9 @@ remoteHandlers['todo/delete'] = (tag, params, callback) => {
 }
 
 const remoteHandler = (tag, params) => {
-  return remoteHandlers[tag] ? remoteHandlers[tag](tag, params) : Promise.resolve([])
+  return remoteHandlers[tag]
+    ? remoteHandlers[tag](tag, params)
+    : Promise.resolve([])
 }
 
 const mount = init({ state, remoteHandler })
