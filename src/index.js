@@ -103,13 +103,13 @@ let state = {
 
 const remoteHandlers = {}
 
-remoteHandlers['app/init'] = (tag, params, callback) => {
+remoteHandlers['app/init'] = (tag, params) => {
   return fetch('/todos')
     .then(response => response.json())
     .then(result => [result])
 }
 
-remoteHandlers['todo/new'] = (tag, params, callback) => {
+remoteHandlers['todo/new'] = (tag, params) => {
   const { text, area } = params
   return fetch('/todos', {
     method: 'POST',
@@ -122,7 +122,7 @@ remoteHandlers['todo/new'] = (tag, params, callback) => {
     .then(result => [result])
 }
 
-remoteHandlers['todo/delete'] = (tag, params, callback) => {
+remoteHandlers['todo/delete'] = (tag, params) => {
   const { todoId } = params
   return fetch(`/todos/${todoId}`, { method: 'DELETE' })
     .then(response => response.json())
