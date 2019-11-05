@@ -4,8 +4,8 @@ import { init, component, render } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = component([['todoId'], ['text']], ctx => {
-  const { text, transact } = ctx
+const Todo = component([['todoId'], ['text']], props => {
+  const { text, transact } = props
   return (
     <li>
       {text}
@@ -23,8 +23,8 @@ const Todo = component([['todoId'], ['text']], ctx => {
 
 Todo.displayName = 'Todo'
 
-const Area = component([['areaId'], ['areaTitle'], ['todos', Todo]], ctx => {
-  const { areaTitle, todos } = ctx
+const Area = component([['areaId'], ['areaTitle'], ['todos', Todo]], props => {
+  const { areaTitle, todos } = props
   return (
     <ul>
       <label key="label">{areaTitle}</label>
@@ -35,8 +35,8 @@ const Area = component([['areaId'], ['areaTitle'], ['todos', Todo]], ctx => {
 
 Area.displayName = 'Area'
 
-const AreaOption = component([['areaId'], ['areaTitle']], ctx => {
-  const { areaId, areaTitle } = ctx
+const AreaOption = component([['areaId'], ['areaTitle']], props => {
+  const { areaId, areaTitle } = props
   return <option value={areaId}>{areaTitle}</option>
 })
 
@@ -44,8 +44,8 @@ AreaOption.displayName = 'AreaOption'
 
 const TodoList = component(
   [['areas', {}, Area, AreaOption], ['loading']],
-  ctx => {
-    const { areas, loading, transact } = ctx
+  props => {
+    const { areas, loading, transact } = props
 
     useEffect(() => {
       transact([['app/init']])
