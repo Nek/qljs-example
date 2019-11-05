@@ -1,12 +1,5 @@
-import {
-  parseChildren,
-  parseChildrenRemote,
-  read,
-  mutate,
-  remote,
-  sync,
-} from 'qljs'
-
+import { parseChildren, parseChildrenRemote, parsers } from 'qljs'
+const { read, mutate, remote, sync } = parsers
 // query name
 // environment
 // state
