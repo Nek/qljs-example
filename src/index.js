@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './parsers'
-import { mount, component, render } from 'qljs'
+import { init, component, render } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
@@ -133,9 +133,9 @@ const remoteHandler = (tag, params) => {
   return handleByTag[tag] ? handleByTag[tag](tag, params) : Promise.resolve([])
 }
 
+const mount = init({ state, remoteHandler })
+
 mount({
-  state,
-  remoteHandler,
-  component: TodoList,
+  Component: TodoList,
   element: document.getElementById('root'),
 })
