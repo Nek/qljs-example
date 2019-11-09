@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './parsers'
-import { init, component, render } from 'qljs'
+import { init, component } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
@@ -24,7 +24,7 @@ const Todo = component([['todoId'], ['text']], props => {
 Todo.displayName = 'Todo'
 
 const Area = component([['areaId'], ['areaTitle'], ['todos', Todo]], props => {
-  const { areaTitle, todos } = props
+  const { areaTitle, todos, render } = props
   return (
     <ul>
       <label key="label">{areaTitle}</label>
@@ -45,7 +45,7 @@ AreaOption.displayName = 'AreaOption'
 const TodoList = component(
   [['areas', {}, Area, AreaOption], ['loading']],
   props => {
-    const { areas, loading, transact } = props
+    const { areas, loading, transact, render } = props
 
     useEffect(() => {
       transact([['app/init']])
