@@ -97,8 +97,8 @@ TodoList.displayName = 'TodoList'
 let state = {
   loading: true,
   initialized: false,
-  todos: {},
-  areas: {},
+  todos: [],
+  areas: [],
 }
 
 const sendMutate = (tag, params) =>

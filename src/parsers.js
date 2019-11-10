@@ -4,27 +4,25 @@ const { read, mutate, remote, sync } = parsers
 // environment
 // state
 read('text', (term, { todoId }, state) => {
-  const text = state.todos[todoId] && state.todos[todoId].text
+  const todo = state.todos.find(({ id }) => id === todoId)
+  const text = todo && todo.text
   return text
 })
-read('todoId', (term, { todoId: id }, state) => {
-  return state.todos[id] && id
+read('todoId', (term, { todoId }, state) => {
+  const todo = state.todos.find(({ id }) => id === todoId)
+  return todo && todoId
 })
 
 read('todos', (term, env, state) => {
   const { areaId } = env
   const [, { todoId }] = term
+
   if (todoId) {
     return parseChildren(term, { ...env, todoId })
   } else {
-    const res = Object.entries(state.todos)
-      .filter(([, todo]) => {
-        // areaId is string
-        return todo.area == areaId
-      })
-      .map(([key]) => {
-        return parseChildren(term, { ...env, todoId: key })
-      })
+    const res = state.todos
+      .filter(({ area: id }) => areaId == id)
+      .map(({ id }) => parseChildren(term, { ...env, todoId: id }))
     return res
   }
 })
@@ -34,8 +32,8 @@ read('areas', (term, env, state) => {
   if (areaId) {
     return parseChildren(term, { ...env, areaId })
   } else {
-    const res = Object.keys(state.areas).map(areaId => {
-      const res = parseChildren(term, { ...env, areaId })
+    const res = state.areas.map(({ id }) => {
+      const res = parseChildren(term, { ...env, areaId: id })
       return res
     })
     return res
@@ -43,11 +41,14 @@ read('areas', (term, env, state) => {
 })
 
 read('areaTitle', (term, { areaId }, state) => {
-  return state.areas[areaId] && state.areas[areaId].title
+  const area = state.areas.find(({ id }) => id === areaId)
+  return area && area.title
 })
 
 read('areaId', (term, { areaId }, state) => {
-  return state.areas[areaId] && areaId
+  const area = state.areas.find(({ id }) => id === areaId)
+
+  return area && areaId
 })
 
 read('loading', (term, env, state) => {
@@ -60,10 +61,9 @@ mutate('app/init', (term, env, state) => {
 })
 
 mutate('todo/delete', (term, { areaId, todoId }, state) => {
-  const newTodos = { ...state.todos }
-  delete newTodos[todoId]
+  const newTodos = [...state.todos.filter(({ id }) => id !== todoId)]
   state.todos = newTodos
-  return state
+  return { todoId }
 })
 
 mutate('area/delete', (term, { areaId }, state) => {
@@ -71,12 +71,13 @@ mutate('area/delete', (term, { areaId }, state) => {
   state.todos = Object.entries(state.todos)
     .filter(([todoId, { area }]) => area === areaId)
     .reduce((res, [todoId, todo]) => ({ ...res, [todoId]: todo }), {})
-  return state.areas
+  return state
 })
 
 mutate('todo/new', ([key, { area, text, id }], env, state) => {
-  state.todos = { ...state.todos, [id]: { text, area } }
-  return state.todos
+  const todo = state.todos.find(({ id: todoId }) => id === todoId)
+  state.todos.push((todo && { ...todo, area, text }) || { id, text, area })
+  return { id }
 })
 
 remote('todo/new', (term, state) => {
@@ -112,7 +113,6 @@ sync('app/init', (term, result, env, state) => {
 })
 
 sync('todo/new', ([tag, { id: todoId }], { id }, env, state) => {
-  const todo = state.todos[todoId]
-  delete state.todos[todoId]
-  state.todos[id] = todo
+  const todo = state.todos.find(({ id }) => id === todoId)
+  todo.id = id
 })
