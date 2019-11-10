@@ -74,8 +74,8 @@ mutate('area/delete', (term, { areaId }, state) => {
   return state.areas
 })
 
-mutate('todo/new', ([key, { area, text, todoId }], env, state) => {
-  state.todos[todoId] = { text, area }
+mutate('todo/new', ([key, { area, text, id }], env, state) => {
+  state.todos = { ...state.todos, [id]: { text, area } }
   return state.todos
 })
 
@@ -111,7 +111,7 @@ sync('app/init', (term, result, env, state) => {
   state.areas = result.areas
 })
 
-sync('todo/new', ([tag, { todoId }], { id }, env, state) => {
+sync('todo/new', ([tag, { id: todoId }], { id }, env, state) => {
   const todo = state.todos[todoId]
   delete state.todos[todoId]
   state.todos[id] = todo

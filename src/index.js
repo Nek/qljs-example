@@ -101,33 +101,24 @@ let state = {
   areas: {},
 }
 
-const remoteHandlers = {}
-
-remoteHandlers['app/init'] = (tag, params) => {
-  return fetch('/todos')
-    .then(response => response.json())
-    .then(result => [result])
-}
-
-remoteHandlers['todo/new'] = (tag, params) => {
-  const { text, area } = params
-  return fetch('/todos', {
+const sendMutate = (tag, params) =>
+  fetch('/api', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ text, area }),
+    body: JSON.stringify([tag, params]),
   })
     .then(response => response.json())
     .then(result => [result])
-}
 
-remoteHandlers['todo/delete'] = (tag, params) => {
-  const { todoId } = params
-  return fetch(`/todos/${todoId}`, { method: 'DELETE' })
-    .then(response => response.json())
-    .then(result => [result])
-}
+const remoteHandlers = {}
+
+remoteHandlers['app/init'] = sendMutate
+
+remoteHandlers['todo/new'] = sendMutate
+
+remoteHandlers['todo/delete'] = sendMutate
 
 const remoteHandler = (tag, params) => {
   return remoteHandlers[tag]
