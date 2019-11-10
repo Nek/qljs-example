@@ -112,19 +112,10 @@ const sendMutate = (tag, params) =>
     .then(response => response.json())
     .then(result => [result])
 
-const remoteHandlers = {}
-
-remoteHandlers['app/init'] = sendMutate
-
-remoteHandlers['todo/new'] = sendMutate
-
-remoteHandlers['todo/delete'] = sendMutate
-
-const remoteHandler = (tag, params) => {
-  return remoteHandlers[tag]
-    ? remoteHandlers[tag](tag, params)
+const remoteHandler = (tag, params) =>
+  new Set(['app/init', 'todo/new', 'todo/delete']).has(tag)
+    ? sendMutate(tag, params)
     : Promise.resolve([])
-}
 
 const mount = init({ state, remoteHandler })
 
