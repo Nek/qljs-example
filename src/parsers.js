@@ -66,14 +66,6 @@ mutate('todo/delete', (term, { areaId, todoId }, state) => {
   return { todoId }
 })
 
-mutate('area/delete', (term, { areaId }, state) => {
-  delete state.areas[areaId]
-  state.todos = Object.entries(state.todos)
-    .filter(([todoId, { area }]) => area === areaId)
-    .reduce((res, [todoId, todo]) => ({ ...res, [todoId]: todo }), {})
-  return state
-})
-
 mutate('todo/new', ([key, { area, text, id }], env, state) => {
   const todo = state.todos.find(({ id: todoId }) => id === todoId)
   state.todos.push((todo && { ...todo, area, text }) || { id, text, area })
