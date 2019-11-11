@@ -4,7 +4,7 @@ import { init, component, getQuery } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = component([['todoId', {}], ['text', {}]], props => {
+const Todo = component(['todoId', 'text'], props => {
   const { text, transact } = props
   return (
     <li>
@@ -38,7 +38,7 @@ const Area = component(
 
 Area.displayName = 'Area'
 
-const AreaOption = component([['areaId', {}], ['areaTitle', {}]], props => {
+const AreaOption = component(['areaId', 'areaTitle'], props => {
   const { areaId, areaTitle } = props
   return <option value={areaId}>{areaTitle}</option>
 })
@@ -46,7 +46,7 @@ const AreaOption = component([['areaId', {}], ['areaTitle', {}]], props => {
 AreaOption.displayName = 'AreaOption'
 
 const TodoList = component(
-  [['areas', {}, ...getQuery(Area), ...getQuery(AreaOption)], ['loading', {}]],
+  [['areas', ...getQuery(Area), ...getQuery(AreaOption)], 'loading'],
   props => {
     const { areas, loading, transact, render } = props
 
