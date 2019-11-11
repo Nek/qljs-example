@@ -24,7 +24,7 @@ const Todo = component([['todoId', {}], ['text', {}]], props => {
 Todo.displayName = 'Todo'
 
 const Area = component(
-  [['areaId', {}], ['areaTitle', {}], ['todos', {}, ...getQuery(Todo)]],
+  ['areaId', 'areaTitle', ['todos', ...getQuery(Todo)]],
   props => {
     const { areaTitle, todos, render } = props
     return (
