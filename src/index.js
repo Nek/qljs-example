@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './parsers'
-import { init, component } from 'qljs'
+import { init, component, getQuery } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
@@ -24,7 +24,7 @@ const Todo = component([['todoId', {}], ['text', {}]], props => {
 Todo.displayName = 'Todo'
 
 const Area = component(
-  [['areaId', {}], ['areaTitle', {}], ['todos', {}, Todo]],
+  [['areaId', {}], ['areaTitle', {}], ['todos', {}, getQuery(Todo)]],
   props => {
     const { areaTitle, todos, render } = props
     return (
@@ -46,7 +46,7 @@ const AreaOption = component([['areaId', {}], ['areaTitle', {}]], props => {
 AreaOption.displayName = 'AreaOption'
 
 const TodoList = component(
-  [['areas', {}, Area, AreaOption], ['loading', {}]],
+  [['areas', {}, getQuery(Area), getQuery(AreaOption)], ['loading', {}]],
   props => {
     const { areas, loading, transact, render } = props
 
