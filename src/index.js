@@ -4,7 +4,7 @@ import { init, component } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = component([['todoId'], ['text']], props => {
+const Todo = component([['todoId', {}], ['text', {}]], props => {
   const { text, transact } = props
   return (
     <li>
@@ -23,19 +23,22 @@ const Todo = component([['todoId'], ['text']], props => {
 
 Todo.displayName = 'Todo'
 
-const Area = component([['areaId'], ['areaTitle'], ['todos', Todo]], props => {
-  const { areaTitle, todos, render } = props
-  return (
-    <ul>
-      <label key="label">{areaTitle}</label>
-      <div>{render(todos, Todo)}</div>
-    </ul>
-  )
-})
+const Area = component(
+  [['areaId', {}], ['areaTitle', {}], ['todos', {}, Todo]],
+  props => {
+    const { areaTitle, todos, render } = props
+    return (
+      <ul>
+        <label key="label">{areaTitle}</label>
+        <div>{render(todos, Todo)}</div>
+      </ul>
+    )
+  },
+)
 
 Area.displayName = 'Area'
 
-const AreaOption = component([['areaId'], ['areaTitle']], props => {
+const AreaOption = component([['areaId', {}], ['areaTitle', {}]], props => {
   const { areaId, areaTitle } = props
   return <option value={areaId}>{areaTitle}</option>
 })
@@ -43,7 +46,7 @@ const AreaOption = component([['areaId'], ['areaTitle']], props => {
 AreaOption.displayName = 'AreaOption'
 
 const TodoList = component(
-  [['areas', {}, Area, AreaOption], ['loading']],
+  [['areas', {}, Area, AreaOption], ['loading', {}]],
   props => {
     const { areas, loading, transact, render } = props
 
