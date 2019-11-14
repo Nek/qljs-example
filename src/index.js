@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './parsers'
-import { init, component, getQuery } from 'qljs'
+import { init, component } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
@@ -51,7 +51,7 @@ const TodoList = component([['areas', Area, AreaOption], 'loading'], props => {
   }, [])
 
   const [text, setText] = useState('')
-  const [area, setArea] = useState(0)
+  const [area, setArea] = useState('0')
 
   return (
     <div>
@@ -62,7 +62,7 @@ const TodoList = component([['areas', Area, AreaOption], 'loading'], props => {
           <input onChange={e => setText(e.target.value)} value={text} />
           <select
             onChange={e => {
-              setArea(e.target.value)
+              setArea(e.target.value.toString())
             }}>
             {render(areas, AreaOption)}
           </select>
@@ -72,7 +72,7 @@ const TodoList = component([['areas', Area, AreaOption], 'loading'], props => {
                 [
                   'todo/new',
                   {
-                    area,
+                    area: area,
                     text,
                     id: uuid(),
                   },
@@ -109,10 +109,15 @@ const sendMutate = (tag, params) =>
     .then(response => response.json())
     .then(result => [result])
 
-const remoteHandler = (tag, params) =>
-  new Set(['app/init', 'todo/new', 'todo/delete']).has(tag)
-    ? sendMutate(tag, params)
-    : Promise.resolve([])
+const remoteHandler = (tag, params) => {
+  const hasTag = new Set(['app/init', 'todo/new', 'todo/delete']).has(tag)
+
+  if (typeof params === 'undefined') {
+    return hasTag
+  }
+
+  return hasTag ? sendMutate(tag, params) : Promise.resolve([])
+}
 
 const mount = init({ state, remoteHandler })
 

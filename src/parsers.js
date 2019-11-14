@@ -21,7 +21,10 @@ read('todos', (term, env, state) => {
     return parseChildren(term, { ...env, todoId })
   } else {
     const res = state.todos
-      .filter(({ area: id }) => areaId == id)
+      .filter(({ area: id }) => {
+        console.log(typeof areaId, typeof id)
+        return areaId === id
+      })
       .map(({ id }) => parseChildren(term, { ...env, todoId: id }))
     return res
   }
