@@ -3,7 +3,7 @@ const { read, mutate, remote, sync } = parsers
 // query name
 // environment
 // state
-read('text', (term, { todoId }, state) => {
+read('todoText', (term, { todoId }, state) => {
   const todo = state.todos.find(({ id }) => id === todoId)
   const text = todo && todo.text
   return text
@@ -13,7 +13,7 @@ read('todoId', (term, { todoId }, state) => {
   return todo && todoId
 })
 
-read('todos', (term, env, state) => {
+read('areaTodos', (term, env, state) => {
   const { areaId } = env
   const [, { todoId }] = term
 
@@ -30,7 +30,7 @@ read('todos', (term, env, state) => {
   }
 })
 
-read('areas', (term, env, state) => {
+read('appAreas', (term, env, state) => {
   const [, { areaId }] = term
   if (areaId) {
     return parseChildren(term, { ...env, areaId })
@@ -54,60 +54,60 @@ read('areaId', (term, { areaId }, state) => {
   return area && areaId
 })
 
-read('loading', (term, env, state) => {
+read('appLoading', (term, env, state) => {
   return state.loading
 })
 
-mutate('app/init', (term, env, state) => {
+mutate('app_init', (term, env, state) => {
   state.loading = true
   return state
 })
 
-mutate('todo/delete', (term, { areaId, todoId }, state) => {
+mutate('todo_delete', (term, { areaId, todoId }, state) => {
   const newTodos = [...state.todos.filter(({ id }) => id !== todoId)]
   state.todos = newTodos
   return { todoId }
 })
 
-mutate('todo/new', ([key, { area, text, id }], env, state) => {
+mutate('todo_new', ([key, { area, text, id }], env, state) => {
   const todo = state.todos.find(({ id: todoId }) => id === todoId)
   state.todos.push((todo && { ...todo, area, text }) || { id, text, area })
   return { id }
 })
 
-remote('todo/new', (term, state) => {
+remote('todo_new', (term, state) => {
   return term
 })
 
-remote('todo/delete', (term, state) => {
+remote('todo_delete', (term, state) => {
   return term
 })
 
-remote('todos', (term, state) => {
+remote('areaTodos', (term, state) => {
   return parseChildrenRemote(term)
 })
 
-remote('areas', (term, state) => {
+remote('appAreas', (term, state) => {
   return parseChildrenRemote(term)
 })
 
-remote('app/init', (term, state) => {
+remote('app_init', (term, state) => {
   return term
 })
 
-sync('areas', (term, result, env, state) => {})
+sync('appAreas', (term, result, env, state) => {})
 
-sync('todo/delete', (term, result, env, state) => {
+sync('todo_delete', (term, result, env, state) => {
   window.alert(JSON.stringify(term))
 })
 
-sync('app/init', (term, result, env, state) => {
+sync('app_init', (term, result, env, state) => {
   delete state.loading
   state.todos = result.todos
   state.areas = result.areas
 })
 
-sync('todo/new', ([tag, { id: todoId }], { id }, env, state) => {
+sync('todo_new', ([tag, { id: todoId }], { id }, env, state) => {
   const todo = state.todos.find(({ id }) => id === todoId)
   todo.id = id
 })

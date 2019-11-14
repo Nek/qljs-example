@@ -4,15 +4,15 @@ import { init, component } from 'qljs'
 import uuid from 'uuid'
 import './App.css'
 
-const Todo = component(['todoId', 'text'], props => {
-  const { text, transact } = props
+const Todo = component(['todoId', 'todoText'], props => {
+  const { todoText, transact } = props
   return (
     <li>
-      {text}
+      {todoText}
       {
         <button
           onClick={() => {
-            transact([['todo/delete']])
+            transact([['todo_delete']])
           }}>
           x
         </button>
@@ -23,12 +23,12 @@ const Todo = component(['todoId', 'text'], props => {
 
 Todo.displayName = 'Todo'
 
-const Area = component(['areaId', 'areaTitle', ['todos', Todo]], props => {
-  const { areaTitle, todos, render } = props
+const Area = component(['areaId', 'areaTitle', ['areaTodos', Todo]], props => {
+  const { areaTitle, areaTodos, render } = props
   return (
     <ul>
       <label key="label">{areaTitle}</label>
-      <div>{render(todos, Todo)}</div>
+      <div>{render(areaTodos, Todo)}</div>
     </ul>
   )
 })
@@ -42,52 +42,55 @@ const AreaOption = component(['areaId', 'areaTitle'], props => {
 
 AreaOption.displayName = 'AreaOption'
 
-const TodoList = component([['areas', Area, AreaOption], 'loading'], props => {
-  const { areas, loading, transact, render } = props
+const TodoList = component(
+  [['appAreas', Area, AreaOption], 'appLoading'],
+  props => {
+    const { appAreas, appLoading, transact, render } = props
 
-  useEffect(() => {
-    transact([['app/init']])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    useEffect(() => {
+      transact([['app_init']])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
-  const [text, setText] = useState('')
-  const [area, setArea] = useState('0')
+    const [text, setText] = useState('')
+    const [area, setArea] = useState('0')
 
-  return (
-    <div>
-      {loading ? (
-        <div key="loader">Loading...</div>
-      ) : (
-        <div key="todo-list">
-          <input onChange={e => setText(e.target.value)} value={text} />
-          <select
-            onChange={e => {
-              setArea(e.target.value.toString())
-            }}>
-            {render(areas, AreaOption)}
-          </select>
-          <button
-            onClick={() => {
-              transact([
-                [
-                  'todo/new',
-                  {
-                    area: area,
-                    text,
-                    id: uuid(),
-                  },
-                ],
-              ])
-              setText('')
-            }}>
-            Add
-          </button>
-          <ul>{render(areas, Area)}</ul>
-        </div>
-      )}
-    </div>
-  )
-})
+    return (
+      <div>
+        {appLoading ? (
+          <div key="loader">Loading...</div>
+        ) : (
+          <div key="todo-list">
+            <input onChange={e => setText(e.target.value)} value={text} />
+            <select
+              onChange={e => {
+                setArea(e.target.value.toString())
+              }}>
+              {render(appAreas, AreaOption)}
+            </select>
+            <button
+              onClick={() => {
+                transact([
+                  [
+                    'todo_new',
+                    {
+                      area: area,
+                      text,
+                      id: uuid(),
+                    },
+                  ],
+                ])
+                setText('')
+              }}>
+              Add
+            </button>
+            <ul>{render(appAreas, Area)}</ul>
+          </div>
+        )}
+      </div>
+    )
+  },
+)
 
 TodoList.displayName = 'TodoList'
 
@@ -110,7 +113,7 @@ const sendMutate = (tag, params) =>
     .then(result => [result])
 
 const remoteHandler = (tag, params) => {
-  const hasTag = new Set(['app/init', 'todo/new', 'todo/delete']).has(tag)
+  const hasTag = new Set(['app_init', 'todo_new', 'todo_delete']).has(tag)
 
   if (typeof params === 'undefined') {
     return hasTag
